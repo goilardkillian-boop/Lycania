@@ -1,0 +1,50 @@
+name: Build & release launcher
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platformFlag: --win
+          - os: macos-latest
+            platformFlag: --mac
+          - os: ubuntu-latest
+            platformFlag: --linux
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: launcher
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write .env
+        shell: bash
+        run: |
+          echo "MAIN_VITE_AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> .env
+          echo "MAIN_VITE_MODPACK_REPO=${{ vars.MODPACK_FILES_REPO || 'goilardkillian-boop/lycania-files' }}" >> .env
+          echo "MAIN_VITE_LAUNCHER_REPO=${{ github.repository }}" >> .env
+
+      - name: Build
+        run: npm run build
+
+      - name: Package & publish
+        run: npx electron-builder ${{ matrix.platformFlag }} --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,44 @@
+appId: fr.lycania.launcher
+productName: Lycania Launcher
+copyright: Lycania
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+
+extraMetadata:
+  main: out/main/index.js
+
+publish:
+  provider: github
+  owner: goilardkillian-boop
+  repo: Lycania
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.png
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: build/icon.png
+  category: public.app-category.games
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+  icon: build/icon.png
+  category: Game

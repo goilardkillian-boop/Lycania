@@ -1,0 +1,50 @@
+name: Sync modpack to lycania-files
+
+# Résout modpack/manifest.json via l'API CurseForge et publie les mods + pack-manifest.json
+# comme release sur goilardkillian-boop/lycania-files. Tourne sur un runner GitHub Actions
+# (accès internet complet), pas dans un environnement de dev restreint.
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag de la release à créer sur lycania-files (ex: pack-2026.07.23-1)'
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      MODPACK_FILES_REPO: ${{ vars.MODPACK_FILES_REPO || 'goilardkillian-boop/lycania-files' }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      GH_TOKEN: ${{ secrets.LYCANIA_FILES_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Résoudre et télécharger les mods depuis CurseForge
+        run: node scripts/sync-modpack.mjs
+        env:
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
+
+      - name: Créer la release avec les mods + le manifeste (URLs provisoires)
+        run: |
+          gh release create "$RELEASE_TAG" \
+            dist/release/mods/* dist/release/pack-manifest.json \
+            --repo "$MODPACK_FILES_REPO" \
+            --title "$RELEASE_TAG" \
+            --notes "Publication automatique depuis Lycania (${{ github.sha }})"
+
+      - name: Récupérer les vraies URLs des assets uploadés
+        run: |
+          gh api "repos/$MODPACK_FILES_REPO/releases/tags/$RELEASE_TAG" --jq '.assets' > assets.json
+
+      - name: Corriger pack-manifest.json avec les vraies URLs
+        run: node scripts/patch-release-urls.mjs dist/release/pack-manifest.json assets.json
+
+      - name: Ré-uploader le manifeste corrigé
+        run: |
+          gh release upload "$RELEASE_TAG" dist/release/pack-manifest.json \
+            --repo "$MODPACK_FILES_REPO" --clobber

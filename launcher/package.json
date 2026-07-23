@@ -1,0 +1,38 @@
+{
+  "name": "lycania-launcher",
+  "version": "0.1.0",
+  "description": "Launcher officiel du serveur Lycania (Minecraft 1.21.1 / NeoForge)",
+  "author": "Lycania",
+  "private": true,
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "pack:win": "electron-vite build && electron-builder --win",
+    "pack:mac": "electron-vite build && electron-builder --mac",
+    "pack:linux": "electron-vite build && electron-builder --linux",
+    "release": "electron-vite build && electron-builder --win --mac --linux --publish always"
+  },
+  "dependencies": {
+    "@xmcl/core": "2.15.1",
+    "@xmcl/installer": "6.1.2",
+    "electron-updater": "6.8.9",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/node": "22.10.2",
+    "@vitejs/plugin-react": "4.3.4",
+    "autoprefixer": "10.4.20",
+    "electron": "33.4.11",
+    "electron-builder": "26.15.3",
+    "electron-vite": "3.0.0",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.2",
+    "vite": "5.4.11"
+  }
+}
