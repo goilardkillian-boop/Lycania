@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lycania — Le Voile s'effondre</title>
+<meta name="description" content="Lycania, serveur Minecraft RP. Loups, Vampires et Chasseurs s'éveillent sous la lune rouge. Téléchargez le launcher et choisissez votre camp.">
+<link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+<meta property="og:title" content="Lycania — Le Voile s'effondre">
+<meta property="og:description" content="Serveur Minecraft RP · Minecraft 1.21.1 · Loups, Vampires et Chasseurs s'éveillent sous la lune rouge.">
+<meta property="og:image" content="https://goilardkillian-boop.github.io/Lycania/assets/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#070304;
+  --night:#12070b;
+  --panel:#1c0c12;
+  --border:#3d1622;
+  --blood:#c4283c;
+  --blood-deep:#6e1220;
+  --moon:#ff5064;
+  --wisteria:#9d86e0;
+  --wisteria-soft:#c9bcf2;
+  --bone:#f2e6e4;
+  --muted:#a68b90;
+  --font-display:"Cinzel Decorative",serif;
+  --font-body:"Cormorant Garamond",serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--bone);
+  font-family:var(--font-body);
+  font-size:1.25rem;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+::selection{background:var(--blood-deep);color:var(--bone)}
+
+/* ------- grain + vignette ------- */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:49;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%);
+}
+
+/* ------- ciel / lune ------- */
+.sky{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 130% 90% at 50% -10%,#2a0d16 0%,var(--night) 45%,var(--void) 100%);
+  padding:4rem 1.5rem 6rem;text-align:center;isolation:isolate;overflow:hidden}
+.moon{
+  position:absolute;top:8%;left:50%;transform:translateX(-50%);
+  width:min(46vw,420px);aspect-ratio:1;border-radius:50%;z-index:-1;
+  background:radial-gradient(circle at 38% 35%,#ff6a76 0%,var(--blood) 45%,var(--blood-deep) 100%);
+  box-shadow:0 0 120px 30px rgba(196,40,60,.35),0 0 320px 90px rgba(196,40,60,.18);
+  animation:moonrise 2.6s cubic-bezier(.2,.7,.3,1) both, breathe 9s ease-in-out 3s infinite;
+}
+@keyframes moonrise{from{opacity:0;transform:translateX(-50%) translateY(12%) scale(.92)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+@keyframes breathe{0%,100%{box-shadow:0 0 120px 30px rgba(196,40,60,.35),0 0 320px 90px rgba(196,40,60,.18)}50%{box-shadow:0 0 140px 40px rgba(196,40,60,.45),0 0 360px 110px rgba(196,40,60,.22)}}
+.stars{position:absolute;inset:0;z-index:-2}
+.stars span{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--wisteria-soft);opacity:.7;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.8}}
+
+/* glycines qui pendent du haut */
+.vines{position:absolute;top:0;left:0;right:0;height:220px;z-index:1;pointer-events:none;display:flex;justify-content:space-between;padding:0 4vw}
+.vine{width:6px;border-radius:3px;background:linear-gradient(to bottom,#3b2a52,transparent);position:relative;animation:sway 7s ease-in-out infinite}
+.vine::before,.vine::after{content:"";position:absolute;width:14px;height:14px;border-radius:50% 50% 50% 0;background:var(--wisteria);opacity:.8;left:-4px}
+.vine::before{bottom:18px;transform:rotate(-45deg)}
+.vine::after{bottom:-2px;width:10px;height:10px;background:var(--wisteria-soft);transform:rotate(-45deg)}
+.vine:nth-child(odd){animation-delay:-3s}
+@keyframes sway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+
+.hero-logo{width:min(38vw,190px);aspect-ratio:1;border-radius:50%;object-fit:cover;
+  border:1px solid var(--border);
+  box-shadow:0 0 0 6px rgba(196,40,60,.08),0 0 60px -10px var(--blood);
+  animation:fadeup 1.2s .3s cubic-bezier(.2,.7,.3,1) both}
+h1{
+  font-family:var(--font-display);font-weight:900;
+  font-size:clamp(3rem,10vw,6.5rem);
+  letter-spacing:.08em;margin-top:1.6rem;
+  background:linear-gradient(180deg,var(--bone) 30%,#e8a9a9 70%,var(--blood) 110%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 80px rgba(196,40,60,.35);
+  animation:fadeup 1.2s .5s cubic-bezier(.2,.7,.3,1) both}
+.tagline{font-style:italic;color:var(--muted);font-size:clamp(1.2rem,2.6vw,1.6rem);max-width:34ch;margin:1rem auto 0;animation:fadeup 1.2s .7s cubic-bezier(.2,.7,.3,1) both}
+.tagline em{color:var(--wisteria-soft);font-style:italic}
+@keyframes fadeup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+
+.cta-row{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;margin-top:2.8rem;animation:fadeup 1.2s .9s cubic-bezier(.2,.7,.3,1) both}
+.btn{
+  font-family:var(--font-display);font-weight:700;font-size:1rem;letter-spacing:.12em;text-transform:uppercase;
+  text-decoration:none;padding:1.05rem 2.4rem;border-radius:2px;position:relative;
+  transition:transform .25s,box-shadow .25s,background .25s;
+}
+.btn-blood{
+  color:var(--bone);background:linear-gradient(160deg,var(--blood) 0%,var(--blood-deep) 100%);
+  border:1px solid #e05a6b;
+  box-shadow:0 0 35px -8px var(--blood),inset 0 1px 0 rgba(255,255,255,.18);
+}
+.btn-blood:hover{transform:translateY(-2px);box-shadow:0 0 55px -6px var(--moon),inset 0 1px 0 rgba(255,255,255,.18)}
+.btn-ghost{color:var(--wisteria-soft);border:1px solid var(--border);background:rgba(28,12,18,.5);backdrop-filter:blur(4px)}
+.btn-ghost:hover{border-color:var(--wisteria);transform:translateY(-2px)}
+.hero-meta{margin-top:2.2rem;font-size:1.05rem;color:var(--muted);letter-spacing:.04em;animation:fadeup 1.2s 1.1s both}
+.hero-meta b{color:var(--bone);font-weight:600}
+
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.95rem;letter-spacing:.3em;text-transform:uppercase;animation:hint 2.4s ease-in-out infinite}
+@keyframes hint{0%,100%{transform:translate(-50%,0);opacity:.5}50%{transform:translate(-50%,8px);opacity:1}}
+
+/* ------- sections ------- */
+section{max-width:880px;margin:0 auto;padding:6rem 1.5rem}
+.eyebrow{font-family:var(--font-display);font-size:.85rem;font-weight:700;letter-spacing:.4em;text-transform:uppercase;color:var(--blood);margin-bottom:1rem}
+h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,2.6rem);letter-spacing:.05em;margin-bottom:1.8rem;color:var(--bone)}
+.divider{display:flex;align-items:center;gap:1rem;margin:0 auto;max-width:400px;color:var(--blood)}
+.divider::before,.divider::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--border))}
+.divider::after{background:linear-gradient(90deg,var(--border),transparent)}
+.divider svg{flex-shrink:0}
+
+.prose p{margin-bottom:1.3rem;color:#d8c3c6}
+.prose strong{color:var(--bone);font-weight:600}
+.prose .rune{
+  display:block;text-align:center;font-style:italic;color:var(--wisteria-soft);
+  border-block:1px solid var(--border);padding:1.4rem 0;margin:2.2rem 0;letter-spacing:.06em;font-size:1.35rem}
+
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.7,.3,1),transform .9s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ------- clans ------- */
+.clans{max-width:1100px}
+.clan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:3rem}
+.clan{
+  position:relative;padding:2.4rem 1.8rem;background:linear-gradient(170deg,var(--panel) 0%,rgba(18,7,11,.6) 100%);
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;
+  transition:transform .35s,border-color .35s,box-shadow .35s}
+.clan:hover{transform:translateY(-6px)}
+.clan h3{font-family:var(--font-display);font-size:1.5rem;font-weight:700;letter-spacing:.08em;margin:.8rem 0 1rem}
+.clan p{color:var(--muted);font-size:1.1rem}
+.clan .sigil{font-size:2.2rem;line-height:1}
+.clan::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;opacity:.85}
+.clan-loups::after{background:linear-gradient(90deg,transparent,#b9762b,transparent)}
+.clan-loups:hover{border-color:#b9762b;box-shadow:0 18px 50px -20px rgba(185,118,43,.4)}
+.clan-vampires::after{background:linear-gradient(90deg,transparent,var(--blood),transparent)}
+.clan-vampires:hover{border-color:var(--blood);box-shadow:0 18px 50px -20px rgba(196,40,60,.5)}
+.clan-chasseurs::after{background:linear-gradient(90deg,transparent,var(--wisteria),transparent)}
+.clan-chasseurs:hover{border-color:var(--wisteria);box-shadow:0 18px 50px -20px rgba(157,134,224,.4)}
+
+/* ------- chronique (timeline) ------- */
+.chronique{position:relative}
+.chapter{position:relative;padding-left:2.6rem;margin-top:3rem;border-left:1px solid var(--border)}
+.chapter::before{
+  content:"";position:absolute;left:-7px;top:.4em;width:13px;height:13px;border-radius:50%;
+  background:var(--void);border:2px solid var(--blood);box-shadow:0 0 14px var(--blood)}
+.chapter h3{font-family:var(--font-display);font-size:1.25rem;letter-spacing:.1em;color:var(--wisteria-soft);margin-bottom:1rem}
+
+/* ------- download ------- */
+.download{text-align:center;max-width:720px}
+.download .panel{
+  border:1px solid var(--border);border-radius:6px;padding:3.4rem 2rem;
+  background:
+    radial-gradient(ellipse 80% 120% at 50% -20%,rgba(196,40,60,.15),transparent 60%),
+    linear-gradient(170deg,var(--panel),rgba(18,7,11,.4));
+}
+.download ol{list-style:none;counter-reset:step;margin:2.4rem auto 0;max-width:430px;text-align:left}
+.download li{counter-increment:step;position:relative;padding:.55rem 0 .55rem 3rem;color:var(--muted);font-size:1.15rem}
+.download li::before{
+  content:counter(step);position:absolute;left:0;top:.45rem;width:2rem;height:2rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:.9rem;color:var(--bone);
+  border:1px solid var(--blood);background:rgba(196,40,60,.12)}
+.download li b{color:var(--bone);font-weight:600}
+.platforms{margin-top:1.6rem;color:var(--muted);font-size:1rem;letter-spacing:.06em}
+
+/* ------- footer ------- */
+footer{border-top:1px solid var(--border);margin-top:4rem;padding:2.6rem 1.5rem;text-align:center;color:var(--muted);font-size:1rem}
+footer a{color:var(--wisteria-soft);text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer .quote{font-style:italic;margin-bottom:1rem}
+
+@media (max-width:640px){
+  .vines{display:none}
+  section{padding:4rem 1.25rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="sky">
+  <div class="stars" aria-hidden="true"></div>
+  <div class="moon" aria-hidden="true"></div>
+  <div class="vines" aria-hidden="true">
+    <div class="vine" style="height:150px"></div>
+    <div class="vine" style="height:90px"></div>
+    <div class="vine" style="height:190px"></div>
+    <div class="vine" style="height:70px"></div>
+    <div class="vine" style="height:120px"></div>
+    <div class="vine" style="height:200px"></div>
+    <div class="vine" style="height:100px"></div>
+    <div class="vine" style="height:160px"></div>
+  </div>
+
+  <img class="hero-logo" src="assets/logo.jpg" alt="Emblème de Lycania : fleurs de glycine devant une lune rouge">
+  <h1>Lycania</h1>
+  <p class="tagline">Un ancien village, une relique volée, et une lune qui n'aurait <em>jamais</em> dû redevenir rouge.</p>
+
+  <div class="cta-row">
+    <a class="btn btn-blood" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Télécharger le launcher</a>
+    <a class="btn btn-ghost" href="#lore">Découvrir le lore</a>
+  </div>
+
+  <p class="hero-meta">Minecraft <b>1.21.1</b> · NeoForge · Serveur RP survie</p>
+  <span class="scroll-hint" aria-hidden="true">Descendre</span>
+</header>
+
+<section id="lore" class="prose">
+  <div class="reveal">
+    <p class="eyebrow">Synopsis</p>
+    <h2>Bienvenue à Lycania</h2>
+  </div>
+  <div class="reveal">
+    <p>Lycania est un ancien village entouré de mystères, où les histoires de <strong>Loups</strong> et de <strong>Vampires</strong> ne sont plus que de vieilles légendes auxquelles presque plus personne ne croit.</p>
+    <p>Une seule personne refuse de les oublier : <strong>Marcus Bryshon</strong>, le chef du village. Depuis toujours, il dit veiller sur la <strong>Pierre de Clair de Lune</strong>, une ancienne relique qui maintient le Voile protecteur autour de Lycania et protège ses habitants d'une malédiction.</p>
+    <p>Mais un jour, la Pierre disparaîtra…</p>
+    <p>La lune deviendra rouge pour la première fois depuis des siècles, et le monde que vous connaissez basculera. Les premières transformations apparaîtront, et les anciens clans des Loups, des Vampires et des Chasseurs renaîtront.</p>
+    <p><strong>Un rôle vous sera attribué, et vous devrez survivre.</strong></p>
+  </div>
+</section>
+
+<div class="divider reveal" aria-hidden="true">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+</div>
+
+<section class="clans">
+  <div class="reveal" style="text-align:center">
+    <p class="eyebrow">Les trois clans</p>
+    <h2>Choisissez votre camp</h2>
+  </div>
+  <div class="clan-grid">
+    <article class="clan clan-loups reveal">
+      <div class="sigil" aria-hidden="true">🐺</div>
+      <h3>Les Loups</h3>
+      <p>Héritiers d'Aldren. La malédiction coule dans leurs veines et s'éveille sous la lune rouge. Chaque nuit les rapproche un peu plus de la bête.</p>
+    </article>
+    <article class="clan clan-vampires reveal">
+      <div class="sigil" aria-hidden="true">🩸</div>
+      <h3>Les Vampires</h3>
+      <p>Héritiers de Lysandra. Immortels, affamés, patients. Ils marchent parmi les villageois depuis que le Voile s'est fissuré — peut-être depuis plus longtemps encore.</p>
+    </article>
+    <article class="clan clan-chasseurs reveal">
+      <div class="sigil" aria-hidden="true">🏹</div>
+      <h3>Les Chasseurs</h3>
+      <p>Fidèles à la mémoire d'Elias. Ils savent que les légendes disent vrai, et qu'il faudra du fer, du feu et du sang-froid pour que l'humanité survive.</p>
+    </article>
+  </div>
+</section>
+
+<div class="divider reveal" aria-hidden="true">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+</div>
+
+<section class="chronique prose">
+  <div class="reveal">
+    <p class="eyebrow">La chronique</p>
+    <h2>Neuf siècles de silence</h2>
+  </div>
+
+  <div class="chapter reveal">
+    <h3>Partie I — Avant votre arrivée</h3>
+    <p>Il y a près de 900 ans, trois enfants découvrirent un ancien temple caché au cœur de la forêt. En son centre reposaient deux mystérieux artefacts, accompagnés d'une inscription runique :</p>
+    <span class="rune">« Que nul ne réveille les Héritages. »</span>
+    <p><strong>Elias</strong> prit peur et supplia ses amis de partir, mais la curiosité fut plus forte. <strong>Aldren</strong> posa sa main sur le premier artefact et <strong>Lysandra</strong> s'empara du second.</p>
+    <p>Cette nuit-là, le ciel se teinta de rouge et la malédiction s'abattit sur les habitants : certains furent transformés en Loups, d'autres en Vampires. Ainsi débuta la <strong>Guerre des Maudits</strong>.</p>
+    <p>Pour réparer leur erreur, les trois amis, devenus adultes, offrirent leur vie dans un ancien rituel. De leur sacrifice naquit la <strong>Pierre de Clair de Lune</strong> — et le <strong>Voile</strong>, une immense barrière invisible qui endormit la malédiction et ramena la paix… pendant neuf siècles.</p>
+  </div>
+
+  <div class="chapter reveal">
+    <h3>Partie II — Une fois que vous êtes arrivés</h3>
+    <p>La Pierre a été volée. Marcus Bryshon sombre peu à peu dans la folie et répète sans cesse que « le Voile finira par tomber ». Les habitants n'y voient que les divagations d'un vieil homme.</p>
+    <p>Pourtant, il avait raison. Dès l'instant où la Pierre quitta son piédestal, les âmes d'Aldren, de Lysandra et d'Elias furent libérées — et revinrent parmi les vivants en prenant discrètement possession de nouveaux corps.</p>
+    <p>Elles sont déjà à Lycania. Peut-être sont-elles vos voisins… <strong>ou peut-être que c'est vous.</strong></p>
+    <p>Vous arrivez au village alors que Marcus vit ses derniers jours. À sa mort, un nouveau chef devra être élu. Mais il sera déjà trop tard : le Voile s'effondrera peu à peu, les premières transformations apparaîtront, et chacun devra choisir son camp… avant que la malédiction ne s'empare définitivement de Lycania.</p>
+  </div>
+</section>
+
+<div class="divider reveal" aria-hidden="true">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+</div>
+
+<section class="download" id="jouer">
+  <div class="panel reveal">
+    <p class="eyebrow">Rejoindre le village</p>
+    <h2>Le Voile n'attendra pas</h2>
+    <ol>
+      <li><b>Téléchargez le launcher</b> Lycania pour votre système.</li>
+      <li><b>Connectez-vous</b> avec votre compte Microsoft (Minecraft Java requis).</li>
+      <li>Le launcher <b>installe tout automatiquement</b> : le jeu, les mods, les configurations.</li>
+      <li><b>Jouez.</b> Et méfiez-vous de vos voisins.</li>
+    </ol>
+    <div class="cta-row">
+      <a class="btn btn-blood" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Télécharger le launcher</a>
+    </div>
+    <p class="platforms">Windows · macOS · Linux</p>
+  </div>
+</section>
+
+<footer>
+  <p class="quote">« Serez-vous capable de détecter les créatures maléfiques parmi vous ? Et surtout… survivrez-vous ? »</p>
+  <p>Lycania · Minecraft 1.21.1 · <a href="https://github.com/goilardkillian-boop/Lycania">Code source du launcher</a></p>
+</footer>
+
+<script>
+// étoiles générées avec positions/dephasages aléatoires
+const stars = document.querySelector('.stars');
+for (let i = 0; i < 70; i++) {
+  const s = document.createElement('span');
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top = Math.random() * 100 + '%';
+  s.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+  s.style.animationDuration = (2.5 + Math.random() * 4).toFixed(2) + 's';
+  stars.appendChild(s);
+}
+
+// révélation au scroll
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+</script>
+</body>
+</html>
