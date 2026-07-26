@@ -106,10 +106,11 @@ npm run pack:win    # ou pack:mac / pack:linux
    nouvelle version au prochain lancement et met à jour les mods automatiquement (par hash).
 
 **Mods qui refusent la distribution tierce** : certains auteurs désactivent la distribution via API
-CurseForge. Le script `scripts/sync-modpack.mjs` les liste en fin d'exécution (logs du workflow).
-Pour ces mods-là uniquement : télécharge le jar manuellement, place-le dans
-`modpack/overrides/mods/<nom-exact-du-fichier>.jar`, commit, puis relance le workflow — ces fichiers
-sont repris tels quels au lieu d'être demandés à l'API.
+CurseForge. Le script `scripts/sync-modpack.mjs` les liste en fin d'exécution (logs du workflow),
+avec l'ID de projet CurseForge de chacun. Pour ces mods-là uniquement : télécharge le jar
+manuellement, place-le dans `modpack/overrides/mods/<projectID>.jar` (renommé avec l'ID de projet,
+pas le nom du fichier — il est repris tel quel par le pack, peu importe la version), commit, puis
+relance le workflow.
 
 ## Limites connues de cet environnement de développement
 

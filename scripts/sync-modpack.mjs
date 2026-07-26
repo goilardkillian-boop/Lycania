@@ -57,10 +57,17 @@ async function downloadTo(url, destination) {
   await pipeline(res.body, createWriteStream(destination))
 }
 
-async function listOverrideMods() {
+/**
+ * Les mods qui interdisent la redistribution tierce n'ont pas d'URL de téléchargement via l'API
+ * CurseForge: il faut fournir le jar à la main. On les range dans overrides/mods/<projectID>.jar
+ * (par ID de projet, stable) plutôt que par nom de fichier, qui change à chaque mise à jour du mod.
+ */
+async function listOverrideProjectIds() {
   if (!existsSync(overridesModsDir)) return new Set()
   const entries = await readdir(overridesModsDir)
-  return new Set(entries)
+  return new Set(
+    entries.filter((e) => /^\d+\.jar$/.test(e)).map((e) => e.replace(/\.jar$/, ''))
+  )
 }
 
 /**
@@ -85,7 +92,7 @@ async function fetchPreviousFilePaths() {
 
 async function main() {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
-  const overrideMods = await listOverrideMods()
+  const overrideProjectIds = await listOverrideProjectIds()
 
   await mkdir(join(outDir, 'mods'), { recursive: true })
 
@@ -98,12 +105,12 @@ async function main() {
       const info = await curseforgeFile(projectID, fileID)
       const fileName = info.fileName
 
-      if (overrideMods.has(fileName)) {
-        const src = join(overridesModsDir, fileName)
+      if (overrideProjectIds.has(String(projectID))) {
+        const src = join(overridesModsDir, `${projectID}.jar`)
         const dest = join(outDir, 'mods', fileName)
         await copyFile(src, dest)
         files.push({ path: `mods/${fileName}`, sha1: await sha1Of(dest), size: (await import('node:fs')).statSync(dest).size })
-        console.log(`[override] ${fileName}`)
+        console.log(`[override] ${fileName} (projet ${projectID})`)
         continue
       }
 
@@ -144,8 +151,10 @@ async function main() {
 
   console.log(`\n${files.length} fichier(s) prêt(s) dans ${relative(repoRoot, outDir)}`)
   if (skipped.length) {
-    console.log(`\n${skipped.length} mod(s) à ajouter manuellement dans modpack/overrides/mods/ puis relancer:`)
-    for (const s of skipped) console.log(`  - ${s.fileName} (https://www.curseforge.com/minecraft/mc-mods/search?search=${s.projectID})`)
+    console.log(`\n${skipped.length} mod(s) à ajouter manuellement dans modpack/overrides/mods/<projectID>.jar puis relancer:`)
+    for (const s of skipped) {
+      console.log(`  - modpack/overrides/mods/${s.projectID}.jar (actuellement ${s.fileName}, projet https://www.curseforge.com/minecraft/mc-mods/search?search=${s.projectID})`)
+    }
   }
 }
 
