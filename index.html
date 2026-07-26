@@ -196,13 +196,12 @@ footer .credits{font-size:.85rem;opacity:.6;margin-top:.8rem}
   section{padding:4rem 1.25rem}
 }
 /* ------- ambiance sonore ------- */
+.sound-control{position:fixed;bottom:1.6rem;right:1.6rem;z-index:60;display:flex;flex-direction:column;align-items:center;animation:fadeup 1s 1.6s both}
 .sound-toggle{
-  position:fixed;bottom:1.6rem;right:1.6rem;z-index:60;
-  width:3.1rem;height:3.1rem;border-radius:50%;
+  width:3.1rem;height:3.1rem;border-radius:50%;flex-shrink:0;
   border:1px solid var(--border);background:rgba(18,7,11,.75);backdrop-filter:blur(6px);
   color:var(--wisteria-soft);display:flex;align-items:center;justify-content:center;
   cursor:pointer;transition:border-color .3s,color .3s,transform .3s;
-  animation:fadeup 1s 1.6s both;
 }
 .sound-toggle:hover{border-color:var(--blood);color:var(--bone);transform:scale(1.08)}
 .sound-toggle svg{width:1.35rem;height:1.35rem;overflow:visible}
@@ -210,6 +209,17 @@ footer .credits{font-size:.85rem;opacity:.6;margin-top:.8rem}
 .sound-toggle .mute-x{opacity:1;transition:opacity .3s}
 .sound-toggle[aria-pressed="true"] .wave{opacity:1}
 .sound-toggle[aria-pressed="true"] .mute-x{opacity:0}
+
+.volume-pop{
+  height:0;overflow:hidden;opacity:0;display:flex;justify-content:center;
+  transition:height .25s ease,opacity .25s ease,margin .25s ease;
+}
+.sound-control:hover .volume-pop,.sound-control:focus-within .volume-pop{height:6.5rem;opacity:1;margin-bottom:.9rem}
+.volume-pop input[type="range"]{
+  writing-mode:vertical-lr;direction:rtl;
+  -webkit-appearance:slider-vertical;appearance:slider-vertical;
+  width:1.4rem;height:6rem;accent-color:var(--blood);cursor:pointer;background:transparent;
+}
 
 /* ------- brume dérivante ------- */
 .mist{position:absolute;inset:auto 0 0 0;height:45%;z-index:0;pointer-events:none;opacity:.5}
@@ -234,6 +244,35 @@ footer .credits{font-size:.85rem;opacity:.6;margin-top:.8rem}
   100%{transform:translateY(-100vh) translateX(var(--drift,20px));opacity:0}
 }
 
+/* ------- barre de progression ------- */
+.scroll-progress{position:fixed;top:0;left:0;height:3px;z-index:70;width:0%;
+  background:linear-gradient(90deg,var(--blood-deep),var(--blood),var(--moon));
+  box-shadow:0 0 8px var(--blood)}
+
+/* ------- easter eggs ------- */
+.moon{cursor:pointer}
+.moon.flash{animation:moon-flash .6s ease}
+@keyframes moon-flash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9) saturate(1.4)}}
+
+.toast{
+  position:fixed;bottom:6.6rem;right:1.6rem;z-index:65;max-width:270px;
+  background:rgba(18,7,11,.94);border:1px solid var(--blood);border-radius:4px;
+  padding:1rem 1.2rem;font-size:.95rem;line-height:1.5;color:var(--bone);
+  box-shadow:0 10px 40px -10px rgba(196,40,60,.5);
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .4s,transform .4s;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.cursor-particle{position:fixed;z-index:55;border-radius:50%;pointer-events:none;background:var(--wisteria-soft)}
+@keyframes particle-fade{to{transform:translateY(-26px) scale(.2);opacity:0}}
+
+.invert-mode{filter:invert(1) hue-rotate(180deg);transition:filter .4s}
+
+@media (max-width:640px){
+  .toast{right:.9rem;left:.9rem;max-width:none;bottom:5.4rem}
+}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .reveal{opacity:1;transform:none}
@@ -243,15 +282,23 @@ footer .credits{font-size:.85rem;opacity:.6;margin-top:.8rem}
 </head>
 <body>
 
+<div class="scroll-progress" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <audio id="ambience" src="assets/audio/ambience.ogg" loop preload="none"></audio>
-<button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false" aria-label="Activer l'ambiance sonore">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="3.5 9 8 9 12.5 5 12.5 19 8 15 3.5 15" fill="currentColor" stroke="none"/>
-    <path class="wave" d="M16 8.5c1.3 1.2 1.3 5.8 0 7"/>
-    <path class="wave" d="M18.6 6c2.6 2.6 2.6 9.4 0 12"/>
-    <path class="mute-x" d="M16.5 9.5l4 4M20.5 9.5l-4 4"/>
-  </svg>
-</button>
+<div class="sound-control">
+  <div class="volume-pop">
+    <input type="range" id="volume-slider" min="0" max="100" value="35" aria-label="Volume de l'ambiance sonore">
+  </div>
+  <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false" aria-label="Activer l'ambiance sonore">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="3.5 9 8 9 12.5 5 12.5 19 8 15 3.5 15" fill="currentColor" stroke="none"/>
+      <path class="wave" d="M16 8.5c1.3 1.2 1.3 5.8 0 7"/>
+      <path class="wave" d="M18.6 6c2.6 2.6 2.6 9.4 0 12"/>
+      <path class="mute-x" d="M16.5 9.5l4 4M20.5 9.5l-4 4"/>
+    </svg>
+  </button>
+</div>
 
 <header class="sky">
   <div class="stars" aria-hidden="true"></div>
@@ -437,10 +484,19 @@ window.addEventListener('scroll', () => {
   starsEl.style.transform = `translateY(${y * 0.06}px)`;
 }, { passive: true });
 
-// ambiance sonore : lecture/pause au clic, préférence mémorisée, autoplay jamais forcé
+// ambiance sonore : lecture/pause au clic, volume réglable, préférence mémorisée, autoplay jamais forcé
 const ambience = document.getElementById('ambience');
 const soundToggle = document.getElementById('sound-toggle');
-ambience.volume = 0.35;
+const volumeSlider = document.getElementById('volume-slider');
+
+const savedVolume = localStorage.getItem('lycania-volume');
+volumeSlider.value = savedVolume !== null ? savedVolume : 35;
+ambience.volume = Number(volumeSlider.value) / 100;
+
+volumeSlider.addEventListener('input', () => {
+  ambience.volume = Number(volumeSlider.value) / 100;
+  localStorage.setItem('lycania-volume', volumeSlider.value);
+});
 
 function setSoundState(playing) {
   soundToggle.setAttribute('aria-pressed', String(playing));
@@ -524,6 +580,81 @@ document.querySelectorAll('.os-btn').forEach((btn) => {
 
 markActiveOS(detectOS());
 resolveDownloadLinks();
+
+// barre de progression de lecture
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - doc.clientHeight;
+  const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+  document.querySelector('.scroll-progress').style.width = pct + '%';
+}, { passive: true });
+
+// petit message qui apparaît quelques secondes puis s'efface
+function showToast(message, duration = 5000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// le village n'aime pas qu'on l'oublie : le titre de l'onglet change quand on s'en va
+const baseTitle = document.title;
+document.addEventListener('visibilitychange', () => {
+  document.title = document.hidden ? '🌕 On te regarde…' : baseTitle;
+});
+
+// easter egg : cliquer sur la lune assez de fois réveille quelque chose
+const WHISPERS = [
+  'La lune cligne des yeux.',
+  'Quelque chose remue derrière le Voile.',
+  'On dit que Marcus ne dort plus.',
+  'Les glycines frémissent sans vent.',
+  'Un hurlement, au loin. Ou était-ce un rêve ?'
+];
+let moonClicks = 0;
+moonEl.addEventListener('click', () => {
+  moonClicks++;
+  moonEl.classList.remove('flash');
+  void moonEl.offsetWidth;
+  moonEl.classList.add('flash');
+  if (moonClicks >= 5) {
+    showToast(WHISPERS[Math.floor(Math.random() * WHISPERS.length)]);
+    moonClicks = 0;
+  }
+});
+
+// easter egg : le code Konami réveille les Héritages
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiProgress = 0;
+document.addEventListener('keydown', (e) => {
+  konamiProgress = e.key === KONAMI[konamiProgress] ? konamiProgress + 1 : (e.key === KONAMI[0] ? 1 : 0);
+  if (konamiProgress === KONAMI.length) {
+    konamiProgress = 0;
+    document.body.classList.add('invert-mode');
+    showToast('« Que nul ne réveille les Héritages. » Trop tard.', 4000);
+    setTimeout(() => document.body.classList.remove('invert-mode'), 2200);
+  }
+});
+
+// fines particules de glycine qui suivent le curseur, avec throttling
+let lastParticle = 0;
+document.addEventListener('mousemove', (e) => {
+  const now = Date.now();
+  if (now - lastParticle < 60) return;
+  lastParticle = now;
+  const p = document.createElement('span');
+  p.className = 'cursor-particle';
+  const size = 3 + Math.random() * 3;
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
+  p.style.left = (e.clientX - size / 2) + 'px';
+  p.style.top = (e.clientY - size / 2) + 'px';
+  p.style.opacity = 0.6 + Math.random() * 0.3;
+  p.style.animation = 'particle-fade .9s ease forwards';
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 950);
+});
 </script>
 </body>
 </html>
