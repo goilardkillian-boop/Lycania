@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lycania — Le Voile s'effondre</title>
+<title>Lycania : Le Voile s'effondre</title>
 <meta name="description" content="Lycania, serveur Minecraft RP. Loups, Vampires et Chasseurs s'éveillent sous la lune rouge. Téléchargez le launcher et choisissez votre camp.">
 <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
-<meta property="og:title" content="Lycania — Le Voile s'effondre">
+<meta property="og:title" content="Lycania : Le Voile s'effondre">
 <meta property="og:description" content="Serveur Minecraft RP · Minecraft 1.21.1 · Loups, Vampires et Chasseurs s'éveillent sous la lune rouge.">
 <meta property="og:image" content="https://goilardkillian-boop.github.io/Lycania/assets/logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -146,7 +146,11 @@ h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,
 .clan:hover{transform:translateY(-6px)}
 .clan h3{font-family:var(--font-display);font-size:1.5rem;font-weight:700;letter-spacing:.08em;margin:.8rem 0 1rem}
 .clan p{color:var(--muted);font-size:1.1rem}
-.clan .sigil{font-size:2.2rem;line-height:1}
+.clan .sigil{width:3.4rem;height:3.4rem;filter:drop-shadow(0 0 12px currentColor)}
+.clan .sigil svg{width:100%;height:100%;display:block}
+.clan-loups .sigil{color:#c98a3d}
+.clan-vampires .sigil{color:var(--moon)}
+.clan-chasseurs .sigil{color:var(--wisteria-soft)}
 .clan::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;opacity:.85}
 .clan-loups::after{background:linear-gradient(90deg,transparent,#b9762b,transparent)}
 .clan-loups:hover{border-color:#b9762b;box-shadow:0 18px 50px -20px rgba(185,118,43,.4)}
@@ -185,22 +189,75 @@ footer{border-top:1px solid var(--border);margin-top:4rem;padding:2.6rem 1.5rem;
 footer a{color:var(--wisteria-soft);text-decoration:none}
 footer a:hover{text-decoration:underline}
 footer .quote{font-style:italic;margin-bottom:1rem}
+footer .credits{font-size:.85rem;opacity:.6;margin-top:.8rem}
 
 @media (max-width:640px){
   .vines{display:none}
   section{padding:4rem 1.25rem}
 }
+/* ------- ambiance sonore ------- */
+.sound-toggle{
+  position:fixed;bottom:1.6rem;right:1.6rem;z-index:60;
+  width:3.1rem;height:3.1rem;border-radius:50%;
+  border:1px solid var(--border);background:rgba(18,7,11,.75);backdrop-filter:blur(6px);
+  color:var(--wisteria-soft);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:border-color .3s,color .3s,transform .3s;
+  animation:fadeup 1s 1.6s both;
+}
+.sound-toggle:hover{border-color:var(--blood);color:var(--bone);transform:scale(1.08)}
+.sound-toggle svg{width:1.35rem;height:1.35rem;overflow:visible}
+.sound-toggle .wave{opacity:0;transition:opacity .3s}
+.sound-toggle .mute-x{opacity:1;transition:opacity .3s}
+.sound-toggle[aria-pressed="true"] .wave{opacity:1}
+.sound-toggle[aria-pressed="true"] .mute-x{opacity:0}
+
+/* ------- brume dérivante ------- */
+.mist{position:absolute;inset:auto 0 0 0;height:45%;z-index:0;pointer-events:none;opacity:.5}
+.mist span{
+  position:absolute;bottom:-10%;height:140%;width:60%;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(157,134,224,.14),transparent 70%);
+  filter:blur(6px);animation:drift linear infinite;
+}
+@keyframes drift{from{transform:translateX(-30%)}to{transform:translateX(130%)}}
+
+/* ------- braises flottantes ------- */
+.embers{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.embers span{
+  position:absolute;bottom:-5%;width:3px;height:3px;border-radius:50%;
+  background:var(--moon);box-shadow:0 0 6px 1px var(--moon);
+  animation:embers-rise linear infinite;
+}
+@keyframes embers-rise{
+  0%{transform:translateY(0) translateX(0);opacity:0}
+  10%{opacity:.9}
+  90%{opacity:.5}
+  100%{transform:translateY(-100vh) translateX(var(--drift,20px));opacity:0}
+}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .reveal{opacity:1;transform:none}
+  .embers,.mist{display:none}
 }
 </style>
 </head>
 <body>
 
+<audio id="ambience" src="assets/audio/ambience.ogg" loop preload="none"></audio>
+<button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false" aria-label="Activer l'ambiance sonore">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="3.5 9 8 9 12.5 5 12.5 19 8 15 3.5 15" fill="currentColor" stroke="none"/>
+    <path class="wave" d="M16 8.5c1.3 1.2 1.3 5.8 0 7"/>
+    <path class="wave" d="M18.6 6c2.6 2.6 2.6 9.4 0 12"/>
+    <path class="mute-x" d="M16.5 9.5l4 4M20.5 9.5l-4 4"/>
+  </svg>
+</button>
+
 <header class="sky">
   <div class="stars" aria-hidden="true"></div>
   <div class="moon" aria-hidden="true"></div>
+  <div class="mist" aria-hidden="true"></div>
+  <div class="embers" aria-hidden="true"></div>
   <div class="vines" aria-hidden="true">
     <div class="vine" style="height:150px"></div>
     <div class="vine" style="height:90px"></div>
@@ -254,17 +311,17 @@ footer .quote{font-style:italic;margin-bottom:1rem}
   </div>
   <div class="clan-grid">
     <article class="clan clan-loups reveal">
-      <div class="sigil" aria-hidden="true">🐺</div>
+      <div class="sigil" aria-hidden="true"><svg viewBox="0 0 512 512" fill="currentColor"><path d="M179.3 38.94C154.7 77.7 142.7 139.7 168.4 185.9l-16.3 9.2c-6.7-11.9-11.2-24.4-13.9-37.2-34.5-6.3-69.42-7.5-104.98-2.1 34.07 10.1 52.77 23.7 76.68 46.7-26.82 9.7-60.25 30.2-92.93 70.2 35.47-8.8 64.83-11.5 89.43-6.3-36.94 22.5-64.06 56.1-88.34 114.1 35.9-17.2 64.89-18.8 102.94-18.8-23.07 32.7-35.27 77.2-36.31 112.8 24.51-26 57.61-60.2 87.21-79 3 29.9 15 58.3 35.9 85.3-.2-43.9 10.3-88.3 31.6-133.4-18.8 9-32.4 18.1-49.9 29.3 6.2-27.9 12.4-55.8 18.7-83.7-23.3 2.4-39 10-60.5 18.5 16.3-33.1 32.7-66.1 49.1-99.2l16.8 8.3-28.4 57.4c18.4-4.4 28.7-4.1 45.7-1.3-4.5 20.4-9 40.7-13.6 61 65.3-36.2 148.3-45.9 226.7-50 7.6-12.9 13.8-24.2 18.8-34.8l-6.3-24.4-24.4 30.8-7.8-27.5-22.5 29.2-7.5-26.1-23.9 31.5-7.7-28.2-23.8 31.4 1.2-41.1 22.6-42.7 7.6 28.3 23.9-31.5 7.6 28.2 23.5-30 6.5 26.9 24.5-30.8 7.8 27.5 24.6-32c2.3-10.8 4.6-22.4 7.4-35.7-55.5-3.7-106.3 4.8-154 9.8-38-20.8-80.8-26.8-121.9-18.5-13.6-29.69-27.2-59.38-40.9-89.06zM325.5 158.3c-4.5 14.2-13 18.3-24.7 20.6-16.1-4.4-28.3-15.5-34.4-30.2 20.4-3.8 42.4 3.4 59.1 9.6z"/></svg></div>
       <h3>Les Loups</h3>
       <p>Héritiers d'Aldren. La malédiction coule dans leurs veines et s'éveille sous la lune rouge. Chaque nuit les rapproche un peu plus de la bête.</p>
     </article>
     <article class="clan clan-vampires reveal">
-      <div class="sigil" aria-hidden="true">🩸</div>
+      <div class="sigil" aria-hidden="true"><svg viewBox="0 0 512 512" fill="currentColor"><path d="M256 29c-8 0-15.6 4.345-21.73 12.719C228.139 50.092 224 62.317 224 76s4.139 25.908 10.27 34.281C240.4 118.655 248 123 256 123s15.6-4.345 21.73-12.719C283.861 101.908 288 89.683 288 76s-4.139-25.908-10.27-34.281C271.6 33.345 264 29 256 29zm-95.193 17.709c5.36 11.73 10.839 23.721 17.06 34.92 9.615 17.307 20.842 31.662 34.158 38.32l11.79 5.895a56.89 56.89 0 0 1-4.069-4.93C211.038 109.02 206 93.244 206 76c0-5.837.59-11.5 1.691-16.906-14.322-2.912-29.655-7.03-46.884-12.385zm190.386 0c-17.229 5.355-32.562 9.473-46.884 12.385A84.694 84.694 0 0 1 306 76c0 17.245-5.038 33.02-13.746 44.914a56.89 56.89 0 0 1-4.068 4.93l11.789-5.895c13.316-6.658 24.543-21.013 34.158-38.32 6.221-11.199 11.7-23.19 17.06-34.92zm-124.523 82.02-14.645 7.322c-17.61 8.805-37.942 12.78-52.865 18.377-7.461 2.798-13.401 5.966-16.96 9.347-3.56 3.382-5.2 6.475-5.2 12.225 0 37.6 15.54 83.15 29.61 129.379 14.069 46.228 26.816 93.388 18.216 136.387l-.238 1.181-.537 1.078c-8.94 17.879-22.705 29.286-37.586 37.79-3.661 2.091-7.398 4.026-11.178 5.878 23.968-.33 48.317-4.023 66.35-22.056L208 459.27l6.363 6.366c8 8 15.805 15.74 23.037 21.164 3.413 2.56 6.625 4.506 9.6 5.873V244c0-1-1.397-6.713-4.414-13.21-3.017-6.498-7.362-14.25-12.219-22.02-9.714-15.543-21.79-31.467-28.73-38.407l-8.83-8.828 11.168-5.586c14.926-7.463 21.56-14.477 24.537-18.941 1.488-2.232 2.083-3.851 2.334-4.73.011-.041.006-.01.015-.044a51.013 51.013 0 0 1-4.191-3.506zm58.66 0a51.013 51.013 0 0 1-4.191 3.505c.01.035.004.003.015.043.251.88.846 2.499 2.334 4.73 2.976 4.465 9.61 11.479 24.537 18.942l11.168 5.586-8.83 8.828c-6.94 6.94-19.016 22.864-28.73 38.407-4.857 7.77-9.204 15.522-12.22 22.02C266.394 237.286 265 243 265 244v248.674c2.975-1.367 6.187-3.313 9.6-5.873 7.232-5.424 15.037-13.164 23.037-21.164L304 459.27l6.363 6.366c18.033 18.033 42.382 21.726 66.35 22.056-3.78-1.852-7.517-3.787-11.178-5.879-14.881-8.503-28.647-19.91-37.586-37.789l-.537-1.078-.238-1.181c-8.6-42.999 4.147-90.159 18.217-136.387C359.46 259.15 375 213.6 375 176c0-5.75-1.64-8.843-5.2-12.225-3.559-3.381-9.499-6.55-16.96-9.347-14.923-5.596-35.255-9.572-52.865-18.377zM246.736 141a37.331 37.331 0 0 1-3.248 5.992c-3.909 5.864-10.58 12.602-21.33 19.326 7.528 9.042 15.934 20.847 23.475 32.912.47.752.911 1.496 1.367 2.245V141zM265 141v60.475c.456-.749.898-1.493 1.367-2.245 7.541-12.065 15.947-23.87 23.475-32.912-10.75-6.724-17.421-13.462-21.33-19.326a37.331 37.331 0 0 1-3.248-5.992z"/></svg></div>
       <h3>Les Vampires</h3>
-      <p>Héritiers de Lysandra. Immortels, affamés, patients. Ils marchent parmi les villageois depuis que le Voile s'est fissuré — peut-être depuis plus longtemps encore.</p>
+      <p>Héritiers de Lysandra. Immortels, affamés, patients. Ils marchent parmi les villageois depuis que le Voile s'est fissuré, peut-être depuis plus longtemps encore.</p>
     </article>
     <article class="clan clan-chasseurs reveal">
-      <div class="sigil" aria-hidden="true">🏹</div>
+      <div class="sigil" aria-hidden="true"><svg viewBox="0 0 512 512" fill="currentColor"><path d="m281.28 15.28-4.655 7.5-56.28 90.44c-7.312-18.505-21.67-30.9-37.126-30.44-.66.02-1.308.06-1.97.126-21.174 2.14-35.927 27.865-32.938 57.47 1.005 9.948 3.91 19.074 8.094 26.718-44.558 1.188-76.495 11.61-92.812 38.25 20.32 19.086 59.816 22.993 91.844 18.625l4.843 3.124.126.094 18.906 51.375-52.78 212.718h34.156l61.125-168.905L332 491.28h33.563L261.438 292.19l97.156 62.53c-.08.262-.17.52-.25.782.173-.202.328-.422.5-.625l6.937 4.47 9 5.78 4.533-9.656c32.03-68.4 40.24-134.49 25.843-192.064l23.938-4.812 6.187 23.812 55.408-46.656-73.875-24.313 7.562 29.032-24.563 4.968C381.796 93.172 343.996 49.38 289.033 19.5l-7.75-4.22zm3.408 29.907c31.818 30.565 54.66 66.986 69.093 106.094l-136.686 21.25c5.196-8.662 8.24-19.857 8.28-32.06l59.314-95.282zm77.5 132.688c13.773 51.64 13.89 106.532 1.562 157.906l-113.625-73.124-4.125-61.72 116.188-23.06z"/></svg></div>
       <h3>Les Chasseurs</h3>
       <p>Fidèles à la mémoire d'Elias. Ils savent que les légendes disent vrai, et qu'il faudra du fer, du feu et du sang-froid pour que l'humanité survive.</p>
     </article>
@@ -282,18 +339,18 @@ footer .quote{font-style:italic;margin-bottom:1rem}
   </div>
 
   <div class="chapter reveal">
-    <h3>Partie I — Avant votre arrivée</h3>
+    <h3>Partie I : Avant votre arrivée</h3>
     <p>Il y a près de 900 ans, trois enfants découvrirent un ancien temple caché au cœur de la forêt. En son centre reposaient deux mystérieux artefacts, accompagnés d'une inscription runique :</p>
     <span class="rune">« Que nul ne réveille les Héritages. »</span>
     <p><strong>Elias</strong> prit peur et supplia ses amis de partir, mais la curiosité fut plus forte. <strong>Aldren</strong> posa sa main sur le premier artefact et <strong>Lysandra</strong> s'empara du second.</p>
     <p>Cette nuit-là, le ciel se teinta de rouge et la malédiction s'abattit sur les habitants : certains furent transformés en Loups, d'autres en Vampires. Ainsi débuta la <strong>Guerre des Maudits</strong>.</p>
-    <p>Pour réparer leur erreur, les trois amis, devenus adultes, offrirent leur vie dans un ancien rituel. De leur sacrifice naquit la <strong>Pierre de Clair de Lune</strong> — et le <strong>Voile</strong>, une immense barrière invisible qui endormit la malédiction et ramena la paix… pendant neuf siècles.</p>
+    <p>Pour réparer leur erreur, les trois amis, devenus adultes, offrirent leur vie dans un ancien rituel. De leur sacrifice naquit la <strong>Pierre de Clair de Lune</strong>, et le <strong>Voile</strong>, une immense barrière invisible qui endormit la malédiction et ramena la paix pendant neuf siècles.</p>
   </div>
 
   <div class="chapter reveal">
-    <h3>Partie II — Une fois que vous êtes arrivés</h3>
+    <h3>Partie II : Une fois que vous êtes arrivés</h3>
     <p>La Pierre a été volée. Marcus Bryshon sombre peu à peu dans la folie et répète sans cesse que « le Voile finira par tomber ». Les habitants n'y voient que les divagations d'un vieil homme.</p>
-    <p>Pourtant, il avait raison. Dès l'instant où la Pierre quitta son piédestal, les âmes d'Aldren, de Lysandra et d'Elias furent libérées — et revinrent parmi les vivants en prenant discrètement possession de nouveaux corps.</p>
+    <p>Pourtant, il avait raison. Dès l'instant où la Pierre quitta son piédestal, les âmes d'Aldren, de Lysandra et d'Elias furent libérées, et revinrent parmi les vivants en prenant discrètement possession de nouveaux corps.</p>
     <p>Elles sont déjà à Lycania. Peut-être sont-elles vos voisins… <strong>ou peut-être que c'est vous.</strong></p>
     <p>Vous arrivez au village alors que Marcus vit ses derniers jours. À sa mort, un nouveau chef devra être élu. Mais il sera déjà trop tard : le Voile s'effondrera peu à peu, les premières transformations apparaîtront, et chacun devra choisir son camp… avant que la malédiction ne s'empare définitivement de Lycania.</p>
   </div>
@@ -324,6 +381,10 @@ footer .quote{font-style:italic;margin-bottom:1rem}
 <footer>
   <p class="quote">« Serez-vous capable de détecter les créatures maléfiques parmi vous ? Et surtout… survivrez-vous ? »</p>
   <p>Lycania · Minecraft 1.21.1 · <a href="https://github.com/goilardkillian-boop/Lycania">Code source du launcher</a></p>
+  <p class="credits">
+    Musique d'ambiance : <a href="https://soundimage.org" target="_blank" rel="noopener">Eric Matyas, soundimage.org</a> ·
+    Icônes des clans : <a href="https://game-icons.net" target="_blank" rel="noopener">game-icons.net</a> (Lorc, Delapouite, CC BY 3.0)
+  </p>
 </footer>
 
 <script>
@@ -345,6 +406,69 @@ const io = new IntersectionObserver((entries) => {
   }
 }, { threshold: 0.15 });
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// brume dérivante, générée avec des largeurs/vitesses/départs aléatoires
+const mist = document.querySelector('.mist');
+for (let i = 0; i < 4; i++) {
+  const m = document.createElement('span');
+  m.style.left = (Math.random() * 40 - 20) + '%';
+  m.style.animationDuration = (22 + Math.random() * 14).toFixed(1) + 's';
+  m.style.animationDelay = (-Math.random() * 20).toFixed(1) + 's';
+  mist.appendChild(m);
+}
+
+// braises qui montent depuis le bas du ciel, dérive latérale aléatoire
+const embers = document.querySelector('.embers');
+for (let i = 0; i < 26; i++) {
+  const e = document.createElement('span');
+  e.style.left = Math.random() * 100 + '%';
+  e.style.setProperty('--drift', (Math.random() * 80 - 40).toFixed(0) + 'px');
+  e.style.animationDuration = (7 + Math.random() * 8).toFixed(1) + 's';
+  e.style.animationDelay = (-Math.random() * 15).toFixed(1) + 's';
+  embers.appendChild(e);
+}
+
+// parallaxe léger de la lune et des étoiles au scroll
+const moonEl = document.querySelector('.moon');
+const starsEl = document.querySelector('.stars');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  moonEl.style.transform = `translate(-50%, ${y * 0.15}px)`;
+  starsEl.style.transform = `translateY(${y * 0.06}px)`;
+}, { passive: true });
+
+// ambiance sonore : lecture/pause au clic, préférence mémorisée, autoplay jamais forcé
+const ambience = document.getElementById('ambience');
+const soundToggle = document.getElementById('sound-toggle');
+ambience.volume = 0.35;
+
+function setSoundState(playing) {
+  soundToggle.setAttribute('aria-pressed', String(playing));
+  soundToggle.setAttribute('aria-label', playing ? 'Couper l\'ambiance sonore' : 'Activer l\'ambiance sonore');
+}
+
+soundToggle.addEventListener('click', () => {
+  if (ambience.paused) {
+    ambience.play().then(() => {
+      setSoundState(true);
+      localStorage.setItem('lycania-sound', 'on');
+    }).catch(() => {});
+  } else {
+    ambience.pause();
+    setSoundState(false);
+    localStorage.setItem('lycania-sound', 'off');
+  }
+});
+
+// Les navigateurs bloquent la lecture avec son sans interaction : on retente au premier clic
+// n'importe où sur la page si le visiteur avait laissé le son activé lors de sa dernière visite.
+if (localStorage.getItem('lycania-sound') === 'on') {
+  const resumeOnce = () => {
+    ambience.play().then(() => setSoundState(true)).catch(() => {});
+    document.removeEventListener('click', resumeOnce);
+  };
+  document.addEventListener('click', resumeOnce);
+}
 
 // sélecteur d'OS : détecte le système du visiteur, le met en avant, et résout les liens
 // de téléchargement direct vers les binaires de la dernière release GitHub.
