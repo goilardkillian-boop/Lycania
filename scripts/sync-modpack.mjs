@@ -19,6 +19,7 @@ const repoRoot = join(__dirname, '..')
 
 const CURSEFORGE_API_KEY = process.env.CURSEFORGE_API_KEY
 const RELEASE_TAG = process.env.RELEASE_TAG // ex: pack-2026.07.23-1
+const MODPACK_FILES_REPO = process.env.MODPACK_FILES_REPO
 
 if (!CURSEFORGE_API_KEY) {
   console.error('CURSEFORGE_API_KEY manquant. Ajoute-le en secret GitHub Actions (voir README).')
@@ -62,6 +63,26 @@ async function listOverrideMods() {
   return new Set(entries)
 }
 
+/**
+ * Récupère la liste des chemins de fichiers de la précédente release publiée sur lycania-files,
+ * pour pouvoir calculer quels fichiers ont été retirés du pack (le launcher les supprime chez les
+ * joueurs via `removedPaths`). Retourne un tableau vide s'il n'y a pas encore de release.
+ */
+async function fetchPreviousFilePaths() {
+  if (!MODPACK_FILES_REPO) return []
+  const releaseRes = await fetch(`https://api.github.com/repos/${MODPACK_FILES_REPO}/releases/latest`, {
+    headers: { Accept: 'application/vnd.github+json' }
+  })
+  if (!releaseRes.ok) return []
+  const release = await releaseRes.json()
+  const asset = release.assets?.find((a) => a.name === 'pack-manifest.json')
+  if (!asset) return []
+  const manifestRes = await fetch(asset.browser_download_url)
+  if (!manifestRes.ok) return []
+  const previous = await manifestRes.json()
+  return (previous.files ?? []).map((f) => f.path)
+}
+
 async function main() {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
   const overrideMods = await listOverrideMods()
@@ -103,6 +124,10 @@ async function main() {
     }
   }
 
+  const previousPaths = await fetchPreviousFilePaths()
+  const currentPaths = new Set(files.map((f) => f.path))
+  const removedPaths = previousPaths.filter((p) => !currentPaths.has(p))
+
   const packManifest = {
     packVersion: RELEASE_TAG,
     minecraftVersion: manifest.minecraft.version,
@@ -111,7 +136,7 @@ async function main() {
     // `url` est un placeholder: il est corrigé après coup par patch-release-urls.mjs une fois les
     // assets réellement uploadés sur la release (GitHub peut renommer les fichiers, ex: espaces -> points).
     files: files.map((f) => ({ ...f, url: '' })),
-    removedPaths: [],
+    removedPaths,
     publishedAt: new Date().toISOString()
   }
 
