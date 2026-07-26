@@ -18,12 +18,16 @@ if (!manifestPath || !assetsPath) {
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
 const assets = JSON.parse(await readFile(assetsPath, 'utf8'))
 
+// GitHub assainit les noms d'assets à l'upload (au minimum: les espaces deviennent des points),
+// donc le nom original du fichier local ne correspond pas toujours tel quel au nom stocké.
+const sanitize = (name) => name.replace(/ /g, '.')
+
 const urlByName = new Map(assets.map((a) => [a.name, a.browser_download_url]))
 
 let missing = 0
 for (const file of manifest.files) {
   const name = basename(file.path)
-  const url = urlByName.get(name)
+  const url = urlByName.get(name) ?? urlByName.get(sanitize(name))
   if (!url) {
     console.error(`Aucun asset uploadé ne correspond à ${name}`)
     missing += 1
