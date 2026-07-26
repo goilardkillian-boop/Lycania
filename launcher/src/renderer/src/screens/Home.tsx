@@ -50,7 +50,7 @@ export function Home({
     return 'Jouer'
   }, [installProgress, launchState.phase, busy])
 
-  const avatarUrl = `https://crafatar.com/avatars/${profile.minecraftUuid}?size=64&overlay`
+  const skinRenderUrl = `https://crafatar.com/renders/body/${profile.minecraftUuid}?overlay&scale=8`
 
   return (
     <div className="flex h-full flex-col">
@@ -59,52 +59,64 @@ export function Home({
           <img src={logo} alt="Lycania" className="h-9 w-9 rounded-full object-cover" />
           <span className="font-display text-lg tracking-wide">Lycania</span>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <img src={avatarUrl} alt="" className="h-7 w-7 rounded" onError={(e) => (e.currentTarget.style.visibility = 'hidden')} />
-            <span className="text-sm text-lycania-bone">{profile.minecraftUsername}</span>
-          </div>
-          <button onClick={onOpenSettings} className="text-sm text-lycania-muted hover:text-lycania-bone">
+        <div className="flex items-center gap-5">
+          <button onClick={onOpenSettings} className="text-sm text-lycania-muted transition hover:text-lycania-bone">
             Paramètres
           </button>
-          <button onClick={onSignOut} className="text-sm text-lycania-muted hover:text-lycania-blood">
+          <button onClick={onSignOut} className="text-sm text-lycania-muted transition hover:text-lycania-blood">
             Déconnexion
           </button>
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-6 px-10">
-        <blockquote className="max-w-lg text-center text-sm italic leading-relaxed text-lycania-muted">
-          « La lune deviendra rouge pour la première fois depuis des siècles, et le monde que vous
-          connaissez basculera. »
-        </blockquote>
-
-        <button
-          onClick={onPlay}
-          disabled={busy || launchState.phase === 'running'}
-          className="rounded-xl border border-lycania-border bg-lycania-panel px-14 py-4 text-lg font-semibold tracking-wide
-          text-lycania-bone shadow-xl transition hover:border-lycania-blood hover:shadow-[0_0_35px_-8px_theme(colors.lycania.blood)]
-          disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {playLabel}
-        </button>
-
-        {installProgress && busy && (
-          <div className="w-full max-w-md">
-            <ProgressBar progress={installProgress.progress} label={installProgress.detail ?? PHASE_LABELS[installProgress.phase]} />
+      <main className="flex flex-1 items-center justify-center gap-14 px-10">
+        <aside className="flex flex-col items-center gap-3">
+          <div className="relative flex h-56 w-40 items-end justify-center overflow-hidden rounded-xl border border-lycania-border bg-lycania-panel/60">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-lycania-blood/10 to-transparent" />
+            <img
+              src={skinRenderUrl}
+              alt={profile.minecraftUsername}
+              className="relative h-full object-contain"
+              style={{ imageRendering: 'pixelated' }}
+              onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
+            />
           </div>
-        )}
+          <span className="font-display text-sm tracking-wide text-lycania-bone">{profile.minecraftUsername}</span>
+        </aside>
 
-        {installProgress?.phase === 'error' && (
-          <p className="max-w-md text-center text-sm text-lycania-blood">{installProgress.error}</p>
-        )}
-        {launchState.phase === 'error' && (
-          <p className="max-w-md text-center text-sm text-lycania-blood">{launchState.error}</p>
-        )}
+        <div className="flex flex-col items-center gap-6 text-center">
+          <blockquote className="max-w-lg font-serif text-lg italic leading-relaxed text-lycania-muted">
+            « La lune deviendra rouge pour la première fois depuis des siècles, et le monde que tu
+            connais basculera. »
+          </blockquote>
 
-        <button onClick={() => setShowConsole((v) => !v)} className="text-xs text-lycania-muted underline">
-          {showConsole ? 'Masquer' : 'Afficher'} la console
-        </button>
+          <button
+            onClick={onPlay}
+            disabled={busy || launchState.phase === 'running'}
+            className="rounded-xl border border-lycania-border bg-lycania-panel px-14 py-4 text-lg font-semibold tracking-wide
+            text-lycania-bone shadow-xl transition hover:border-lycania-blood hover:shadow-[0_0_35px_-8px_theme(colors.lycania.blood)]
+            disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {playLabel}
+          </button>
+
+          {installProgress && busy && (
+            <div className="w-full max-w-md">
+              <ProgressBar progress={installProgress.progress} label={installProgress.detail ?? PHASE_LABELS[installProgress.phase]} />
+            </div>
+          )}
+
+          {installProgress?.phase === 'error' && (
+            <p className="max-w-md text-center text-sm text-lycania-blood">{installProgress.error}</p>
+          )}
+          {launchState.phase === 'error' && (
+            <p className="max-w-md text-center text-sm text-lycania-blood">{launchState.error}</p>
+          )}
+
+          <button onClick={() => setShowConsole((v) => !v)} className="text-xs text-lycania-muted underline">
+            {showConsole ? 'Masquer' : 'Afficher'} la console
+          </button>
+        </div>
       </main>
 
       {showConsole && (
