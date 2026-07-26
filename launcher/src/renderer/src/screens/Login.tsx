@@ -10,6 +10,7 @@ interface Props {
 
 export function Login({ onSignIn, progress, error }: Props): JSX.Element {
   const [pending, setPending] = useState(false)
+  const [showLore, setShowLore] = useState(false)
 
   async function handleClick(): Promise<void> {
     setPending(true)
@@ -21,32 +22,61 @@ export function Login({ onSignIn, progress, error }: Props): JSX.Element {
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-8 px-10 text-center">
-      <img src={logo} alt="Lycania" className="h-36 w-36 rounded-full object-cover shadow-[0_0_60px_-10px_theme(colors.lycania.blood)]" />
+    <div className="relative flex h-full items-center justify-center overflow-y-auto px-8 py-10">
+      <div className="pointer-events-none absolute inset-0 bg-blood-moon" />
+      <div className="pointer-events-none absolute left-1/2 top-16 h-72 w-72 -translate-x-1/2 rounded-full bg-lycania-blood/20 blur-[100px]" />
 
-      <div className="max-w-md space-y-3">
-        <h1 className="font-display text-3xl tracking-wide text-lycania-bone">Bienvenue à Lycania</h1>
-        <p className="text-sm leading-relaxed text-lycania-muted">
-          La lune rougeoie de nouveau. Connecte-toi avec ton compte Microsoft pour rejoindre le village
-          avant que le Voile ne s'effondre.
+      <div className="relative flex w-full max-w-lg flex-col items-center gap-6 text-center">
+        <img
+          src={logo}
+          alt="Lycania"
+          className="h-32 w-32 rounded-full object-cover ring-1 ring-lycania-border shadow-[0_0_60px_-8px_theme(colors.lycania.blood)]"
+        />
+
+        <div>
+          <h1 className="font-display text-4xl tracking-wide text-lycania-bone">Lycania</h1>
+          <p className="mt-1 font-serif text-lg italic text-lycania-wisteriaSoft">Le Voile s'effondre</p>
+        </div>
+
+        <p className="max-w-md font-serif text-base leading-relaxed text-lycania-muted">
+          La lune deviendra rouge pour la première fois depuis des siècles. Les clans des Loups, des
+          Vampires et des Chasseurs vont renaître. Un rôle te sera attribué. Sauras-tu détecter les
+          créatures maléfiques parmi les tiens, et surtout, survivras-tu ?
+        </p>
+
+        <button
+          onClick={() => setShowLore((v) => !v)}
+          className="text-xs uppercase tracking-widest text-lycania-wisteriaSoft transition hover:text-lycania-bone"
+        >
+          {showLore ? 'Replier le récit' : 'Découvrir le récit'}
+        </button>
+
+        {showLore && (
+          <blockquote className="max-w-md border-l-2 border-lycania-border pl-4 text-left font-serif text-sm italic leading-relaxed text-lycania-muted">
+            Il y a près de neuf siècles, trois enfants réveillèrent une magie oubliée au cœur de la
+            forêt. Cette nuit là, le ciel se teinta de rouge et la malédiction s'abattit sur le
+            village. De leur sacrifice naquit la Pierre de Clair de Lune, une relique qui endormit la
+            malédiction et ramena la paix pendant près de neuf siècles. Aujourd'hui, la Pierre a
+            disparu. Le Voile s'effondre lentement, et les premières transformations reviennent.
+          </blockquote>
+        )}
+
+        <button
+          onClick={handleClick}
+          disabled={pending}
+          className="mt-2 group relative overflow-hidden rounded-lg border border-lycania-border bg-lycania-panel px-8 py-3
+          font-medium text-lycania-bone shadow-lg transition hover:border-lycania-blood hover:shadow-[0_0_25px_-5px_theme(colors.lycania.blood)]
+          disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {pending ? (progress?.message ?? 'Connexion en cours…') : 'Se connecter avec Microsoft'}
+        </button>
+
+        {error && <p className="max-w-md text-sm text-lycania-blood">{error}</p>}
+
+        <p className="text-xs text-lycania-muted">
+          Un compte Microsoft possédant Minecraft: Java Edition est requis.
         </p>
       </div>
-
-      <button
-        onClick={handleClick}
-        disabled={pending}
-        className="group relative overflow-hidden rounded-lg border border-lycania-border bg-lycania-panel px-8 py-3
-        font-medium text-lycania-bone shadow-lg transition hover:border-lycania-blood hover:shadow-[0_0_25px_-5px_theme(colors.lycania.blood)]
-        disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {pending ? (progress?.message ?? 'Connexion en cours…') : 'Se connecter avec Microsoft'}
-      </button>
-
-      {error && <p className="max-w-md text-sm text-lycania-blood">{error}</p>}
-
-      <p className="text-xs text-lycania-muted">
-        Un compte Microsoft possédant Minecraft: Java Edition est requis.
-      </p>
     </div>
   )
 }

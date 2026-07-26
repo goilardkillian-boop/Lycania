@@ -21,7 +21,8 @@ export default {
         }
       },
       fontFamily: {
-        display: ['"Cinzel"', 'serif'],
+        display: ['"Cinzel Decorative"', 'serif'],
+        serif: ['"Cormorant Garamond"', 'serif'],
         body: ['system-ui', 'sans-serif']
       },
       backgroundImage: {
