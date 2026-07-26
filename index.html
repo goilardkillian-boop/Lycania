@@ -106,6 +106,10 @@ h1{
 .btn-blood:hover{transform:translateY(-2px);box-shadow:0 0 55px -6px var(--moon),inset 0 1px 0 rgba(255,255,255,.18)}
 .btn-ghost{color:var(--wisteria-soft);border:1px solid var(--border);background:rgba(28,12,18,.5);backdrop-filter:blur(4px)}
 .btn-ghost:hover{border-color:var(--wisteria);transform:translateY(-2px)}
+
+.os-picker{gap:.7rem}
+.os-btn{font-size:.85rem;padding:.85rem 1.7rem}
+.os-btn[data-loading="1"]{opacity:.6;pointer-events:none}
 .hero-meta{margin-top:2.2rem;font-size:1.05rem;color:var(--muted);letter-spacing:.04em;animation:fadeup 1.2s 1.1s both}
 .hero-meta b{color:var(--bone);font-weight:600}
 
@@ -174,7 +178,6 @@ h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,
   font-family:var(--font-display);font-size:.9rem;color:var(--bone);
   border:1px solid var(--blood);background:rgba(196,40,60,.12)}
 .download li b{color:var(--bone);font-weight:600}
-.platforms{margin-top:1.6rem;color:var(--muted);font-size:1rem;letter-spacing:.06em}
 
 /* ------- footer ------- */
 footer{border-top:1px solid var(--border);margin-top:4rem;padding:2.6rem 1.5rem;text-align:center;color:var(--muted);font-size:1rem}
@@ -212,8 +215,12 @@ footer .quote{font-style:italic;margin-bottom:1rem}
   <h1>Lycania</h1>
   <p class="tagline">Un ancien village, une relique volée, et une lune qui n'aurait <em>jamais</em> dû redevenir rouge.</p>
 
+  <div class="cta-row os-picker" data-os-picker>
+    <a class="btn os-btn" data-os="win" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Windows</a>
+    <a class="btn os-btn" data-os="mac" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">macOS</a>
+    <a class="btn os-btn" data-os="linux" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Linux</a>
+  </div>
   <div class="cta-row">
-    <a class="btn btn-blood" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Télécharger le launcher</a>
     <a class="btn btn-ghost" href="#lore">Découvrir le lore</a>
   </div>
 
@@ -305,10 +312,11 @@ footer .quote{font-style:italic;margin-bottom:1rem}
       <li>Le launcher <b>installe tout automatiquement</b> : le jeu, les mods, les configurations.</li>
       <li><b>Jouez.</b> Et méfiez-vous de vos voisins.</li>
     </ol>
-    <div class="cta-row">
-      <a class="btn btn-blood" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Télécharger le launcher</a>
+    <div class="cta-row os-picker" data-os-picker>
+      <a class="btn os-btn" data-os="win" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Windows</a>
+      <a class="btn os-btn" data-os="mac" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">macOS</a>
+      <a class="btn os-btn" data-os="linux" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Linux</a>
     </div>
-    <p class="platforms">Windows · macOS · Linux</p>
   </div>
 </section>
 
@@ -336,6 +344,51 @@ const io = new IntersectionObserver((entries) => {
   }
 }, { threshold: 0.15 });
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+// sélecteur d'OS : détecte le système du visiteur, le met en avant, et résout les liens
+// de téléchargement direct vers les binaires de la dernière release GitHub.
+function detectOS() {
+  const ua = navigator.userAgent;
+  if (/Mac/i.test(ua)) return 'mac';
+  if (/Linux/i.test(ua) && !/Android/i.test(ua)) return 'linux';
+  return 'win';
+}
+
+function markActiveOS(os) {
+  document.querySelectorAll('.os-btn').forEach((btn) => {
+    const isActive = btn.dataset.os === os;
+    btn.classList.toggle('btn-blood', isActive);
+    btn.classList.toggle('btn-ghost', !isActive);
+  });
+}
+
+async function resolveDownloadLinks() {
+  const buttons = document.querySelectorAll('.os-btn');
+  buttons.forEach((b) => (b.dataset.loading = '1'));
+  try {
+    const res = await fetch('https://api.github.com/repos/goilardkillian-boop/Lycania/releases/latest');
+    if (!res.ok) return;
+    const release = await res.json();
+    const assets = release.assets || [];
+    const findAsset = (test) => assets.find((a) => test(a.name.toLowerCase()));
+    const byOS = {
+      win: findAsset((n) => n.endsWith('.exe')),
+      mac: findAsset((n) => n.endsWith('.dmg')),
+      linux: findAsset((n) => n.endsWith('.appimage'))
+    };
+    buttons.forEach((btn) => {
+      const asset = byOS[btn.dataset.os];
+      if (asset) btn.href = asset.browser_download_url;
+    });
+  } catch {
+    // Hors ligne ou API indisponible : les liens gardent leur repli vers la page des releases.
+  } finally {
+    buttons.forEach((b) => delete b.dataset.loading);
+  }
+}
+
+markActiveOS(detectOS());
+resolveDownloadLinks();
 </script>
 </body>
 </html>

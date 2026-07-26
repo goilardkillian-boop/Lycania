@@ -26,7 +26,9 @@ function page(title: string, body: string): string {
 
 /**
  * Ouvre le navigateur système sur l'écran de connexion Microsoft et attend la redirection
- * loopback (http://127.0.0.1:<port>/callback) portant le code d'autorisation.
+ * loopback (http://localhost:<port>) portant le code d'autorisation. Le port varie à chaque
+ * connexion, Azure AD l'ignore pour la correspondance tant que l'hôte est "localhost" (voir
+ * https://learn.microsoft.com/entra/identity-platform/reply-url#localhost-exceptions).
  * C'est le flow recommandé par Microsoft pour les applications natives (Authorization Code + PKCE,
  * sans client secret ni WebView embarquée).
  */
@@ -43,7 +45,7 @@ function receiveAuthorizationCode(
     const server = createServer((req, res) => {
       if (!req.url) return
       const url = new URL(req.url, 'http://127.0.0.1')
-      if (url.pathname !== '/callback') {
+      if (url.pathname !== '/') {
         res.writeHead(404).end()
         return
       }
@@ -88,7 +90,11 @@ function receiveAuthorizationCode(
 
     server.listen(0, '127.0.0.1', () => {
       const { port } = server.address() as AddressInfo
-      redirectUri = `http://127.0.0.1:${port}/callback`
+      // Azure AD traite "localhost" et "127.0.0.1" comme deux hôtes distincts pour la correspondance
+      // des redirect URI (seul le port est ignoré pour "localhost"), et le chemin doit correspondre
+      // exactement à celui enregistré (racine, sans /callback). Le serveur écoute sur 127.0.0.1 mais
+      // l'URI envoyée à Microsoft doit utiliser "localhost" avec un chemin vide.
+      redirectUri = `http://localhost:${port}`
 
       const authorizeUrl = new URL(AUTHORIZE_URL)
       authorizeUrl.searchParams.set('client_id', config.azureClientId)
