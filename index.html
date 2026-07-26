@@ -97,6 +97,7 @@ h1{
   font-family:var(--font-display);font-weight:700;font-size:1rem;letter-spacing:.12em;text-transform:uppercase;
   text-decoration:none;padding:1.05rem 2.4rem;border-radius:2px;position:relative;
   transition:transform .25s,box-shadow .25s,background .25s;
+  cursor:pointer;appearance:none;-webkit-appearance:none;
 }
 .btn-blood{
   color:var(--bone);background:linear-gradient(160deg,var(--blood) 0%,var(--blood-deep) 100%);
@@ -216,9 +217,9 @@ footer .quote{font-style:italic;margin-bottom:1rem}
   <p class="tagline">Un ancien village, une relique volée, et une lune qui n'aurait <em>jamais</em> dû redevenir rouge.</p>
 
   <div class="cta-row os-picker" data-os-picker>
-    <a class="btn os-btn" data-os="win" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Windows</a>
-    <a class="btn os-btn" data-os="mac" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">macOS</a>
-    <a class="btn os-btn" data-os="linux" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Linux</a>
+    <button type="button" class="btn os-btn" data-os="win">Windows</button>
+    <button type="button" class="btn os-btn" data-os="mac">macOS</button>
+    <button type="button" class="btn os-btn" data-os="linux">Linux</button>
   </div>
   <div class="cta-row">
     <a class="btn btn-ghost" href="#lore">Découvrir le lore</a>
@@ -313,9 +314,9 @@ footer .quote{font-style:italic;margin-bottom:1rem}
       <li><b>Jouez.</b> Et méfiez-vous de vos voisins.</li>
     </ol>
     <div class="cta-row os-picker" data-os-picker>
-      <a class="btn os-btn" data-os="win" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Windows</a>
-      <a class="btn os-btn" data-os="mac" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">macOS</a>
-      <a class="btn os-btn" data-os="linux" href="https://github.com/goilardkillian-boop/Lycania/releases/latest">Linux</a>
+      <button type="button" class="btn os-btn" data-os="win">Windows</button>
+      <button type="button" class="btn os-btn" data-os="mac">macOS</button>
+      <button type="button" class="btn os-btn" data-os="linux">Linux</button>
     </div>
   </div>
 </section>
@@ -362,6 +363,10 @@ function markActiveOS(os) {
   });
 }
 
+const FALLBACK_URL = 'https://github.com/goilardkillian-boop/Lycania/releases/latest';
+
+// Les boutons ne portent pas d'attribut href (rien à voir au survol dans la barre de statut) :
+// l'URL résolue est gardée en mémoire et la navigation est déclenchée par clic.
 async function resolveDownloadLinks() {
   const buttons = document.querySelectorAll('.os-btn');
   buttons.forEach((b) => (b.dataset.loading = '1'));
@@ -378,14 +383,20 @@ async function resolveDownloadLinks() {
     };
     buttons.forEach((btn) => {
       const asset = byOS[btn.dataset.os];
-      if (asset) btn.href = asset.browser_download_url;
+      if (asset) btn.dataset.url = asset.browser_download_url;
     });
   } catch {
-    // Hors ligne ou API indisponible : les liens gardent leur repli vers la page des releases.
+    // Hors ligne ou API indisponible : le clic retombera sur la page des releases.
   } finally {
     buttons.forEach((b) => delete b.dataset.loading);
   }
 }
+
+document.querySelectorAll('.os-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    window.location.href = btn.dataset.url || FALLBACK_URL;
+  });
+});
 
 markActiveOS(detectOS());
 resolveDownloadLinks();
