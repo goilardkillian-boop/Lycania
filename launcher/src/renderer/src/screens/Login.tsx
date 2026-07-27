@@ -23,7 +23,6 @@ export function Login({ onSignIn, progress, error }: Props): JSX.Element {
 
   return (
     <div className="relative flex h-full items-center justify-center overflow-y-auto px-8 py-10">
-      <div className="pointer-events-none absolute inset-0 bg-blood-moon" />
       <div className="pointer-events-none absolute left-1/2 top-16 h-72 w-72 -translate-x-1/2 rounded-full bg-lycania-blood/20 blur-[100px]" />
 
       <div className="relative flex w-full max-w-lg flex-col items-center gap-6 text-center">

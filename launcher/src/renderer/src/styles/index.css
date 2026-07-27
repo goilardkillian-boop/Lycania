@@ -53,3 +53,43 @@ body {
 ::-webkit-scrollbar-track {
   @apply bg-transparent;
 }
+
+@keyframes lycania-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes lycania-drift {
+  from {
+    transform: translateX(-5%);
+  }
+  to {
+    transform: translateX(5%);
+  }
+}
+
+.lycania-mist {
+  position: absolute;
+  left: -20%;
+  width: 140%;
+  height: 160px;
+  background: radial-gradient(ellipse at center, rgba(243, 233, 234, 0.06) 0%, rgba(243, 233, 234, 0) 70%);
+  filter: blur(6px);
+  animation: lycania-drift 45s ease-in-out infinite alternate;
+}
+
+.lycania-mist-1 {
+  bottom: 0;
+}
+
+.lycania-mist-2 {
+  bottom: 30px;
+  opacity: 0.6;
+  animation-duration: 65s;
+  animation-direction: alternate-reverse;
+}

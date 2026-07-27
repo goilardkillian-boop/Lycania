@@ -7,6 +7,23 @@ import type { TaskContext } from '@xmcl/task'
 
 const JAVA_EXECUTABLE_NAME = osPlatform() === 'win32' ? 'javaw.exe' : 'java'
 
+/**
+ * Le manifeste des runtimes Java est censé répondre quasi instantanément (petit JSON) : s'il
+ * n'a pas répondu après ce délai, c'est un problème réseau (pare-feu, DNS, proxy) et il vaut
+ * mieux échouer avec un message clair que de rester bloqué indéfiniment sans retour visuel.
+ */
+async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms)
+  })
+  try {
+    return await Promise.race([promise, timeout])
+  } finally {
+    clearTimeout(timer!)
+  }
+}
+
 async function findJavaExecutable(root: string): Promise<string | undefined> {
   let entries
   try {
@@ -53,7 +70,13 @@ export async function ensureJavaRuntime(
 
   onProgress?.({ progress: 0, detail: `Téléchargement de Java (${component})…` })
 
-  const manifest: JavaRuntimeManifest = await fetchJavaRuntimeManifest({ target: component })
+  const manifest: JavaRuntimeManifest = await withTimeout(
+    fetchJavaRuntimeManifest({ target: component }),
+    20000,
+    `Impossible de contacter les serveurs de Mojang pour récupérer Java (${component}). Vérifie ta connexion internet ou réessaie plus tard.`
+  )
+
+  onProgress?.({ progress: undefined, detail: `Installation de Java (${component})…` })
 
   const task = installJavaRuntimeTask({ destination, manifest })
   const context: TaskContext = {
