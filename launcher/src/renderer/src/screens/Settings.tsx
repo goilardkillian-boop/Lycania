@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { LauncherSettings } from '@shared/types'
 
 interface Props {
@@ -10,6 +10,11 @@ interface Props {
 export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
   const [form, setForm] = useState(settings)
   const [saving, setSaving] = useState(false)
+  const [launcherVersion, setLauncherVersion] = useState<string>()
+
+  useEffect(() => {
+    window.lycania.app.getVersionInfo().then((info) => setLauncherVersion(info.launcherVersion))
+  }, [])
 
   async function persist(patch: Partial<LauncherSettings>): Promise<void> {
     const next = { ...form, ...patch }
@@ -141,6 +146,8 @@ export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
         </section>
 
         {saving && <p className="text-xs text-lycania-muted">Enregistrement…</p>}
+
+        {launcherVersion && <p className="text-xs text-lycania-muted">Launcher Lycania v{launcherVersion}</p>}
       </div>
     </div>
   )

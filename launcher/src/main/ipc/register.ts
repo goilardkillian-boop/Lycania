@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, dialog, shell } from 'electron'
+import { app, ipcMain, BrowserWindow, dialog, shell } from 'electron'
 import { IPC } from '@shared/types'
 import type { LauncherSettings } from '@shared/types'
 import { authManager, gameState } from '../gameState'
@@ -25,24 +25,30 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.authSignOut, () => authManager.signOut())
 
   ipcMain.handle(IPC.installStart, async () => {
-    const settings = await loadSettings()
+    try {
+      const settings = await loadSettings()
 
-    const syncResult = await syncModpack(config.modpackRepo, settings.gameDirectory, (p) =>
-      broadcast(IPC.installOnProgress, p)
-    )
-    gameState.packManifest = syncResult.manifest
+      const syncResult = await syncModpack(config.modpackRepo, settings.gameDirectory, (p) =>
+        broadcast(IPC.installOnProgress, p)
+      )
+      gameState.packManifest = syncResult.manifest
 
-    const resolvedVersion = await ensureMinecraftInstalled(
-      {
-        minecraftVersion: syncResult.manifest.minecraftVersion,
-        neoforgeVersion: syncResult.manifest.neoforgeVersion,
-        gameDirectory: settings.gameDirectory
-      },
-      (p) => broadcast(IPC.installOnProgress, p)
-    )
-    gameState.resolvedVersion = resolvedVersion
+      const resolvedVersion = await ensureMinecraftInstalled(
+        {
+          minecraftVersion: syncResult.manifest.minecraftVersion,
+          neoforgeVersion: syncResult.manifest.neoforgeVersion,
+          gameDirectory: settings.gameDirectory
+        },
+        (p) => broadcast(IPC.installOnProgress, p)
+      )
+      gameState.resolvedVersion = resolvedVersion
 
-    return { manifest: syncResult.manifest }
+      return { manifest: syncResult.manifest }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      broadcast(IPC.installOnProgress, { phase: 'error', detail: "Erreur pendant l'installation.", error: message })
+      throw err
+    }
   })
 
   ipcMain.handle(IPC.launchStart, async () => {
@@ -96,7 +102,7 @@ export function registerIpcHandlers(): void {
     return result.filePaths[0]
   })
 
-  ipcMain.handle(IPC.appGetVersionInfo, () => ({ launcherVersion: process.env.npm_package_version ?? '0.0.0' }))
+  ipcMain.handle(IPC.appGetVersionInfo, () => ({ launcherVersion: app.getVersion() }))
   ipcMain.handle(IPC.appOpenExternal, (_e, url: string) => shell.openExternal(url))
   ipcMain.handle(IPC.updateInstallNow, () => installUpdateNow())
 }

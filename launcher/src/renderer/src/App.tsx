@@ -3,6 +3,7 @@ import type { AuthState, InstallProgress, LauncherSettings, LaunchState, SignInP
 import { Login } from './screens/Login'
 import { Home } from './screens/Home'
 import { Settings } from './screens/Settings'
+import { BackgroundScene } from './components/BackgroundScene'
 
 type Screen = 'home' | 'settings'
 
@@ -47,8 +48,12 @@ export default function App(): JSX.Element {
 
   async function handlePlay(): Promise<void> {
     setLogLines([])
-    await window.lycania.install.start()
-    await window.lycania.launch.start()
+    try {
+      await window.lycania.install.start()
+      await window.lycania.launch.start()
+    } catch {
+      // L'état d'erreur détaillé est déjà diffusé via installOnProgress / launchOnState.
+    }
   }
 
   async function handleSaveSettings(patch: Partial<LauncherSettings>): Promise<void> {
@@ -57,7 +62,9 @@ export default function App(): JSX.Element {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden">
+    <div className="relative h-screen w-screen overflow-hidden">
+      <BackgroundScene />
+
       {updateReady && (
         <div className="flex items-center justify-between bg-lycania-blood px-4 py-1.5 text-xs text-white">
           <span>Une nouvelle version du launcher ({updateReady}) est prête.</span>
