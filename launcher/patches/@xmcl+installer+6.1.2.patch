@@ -1,0 +1,40 @@
+diff --git a/node_modules/@xmcl/installer/dist/index.js b/node_modules/@xmcl/installer/dist/index.js
+index dec0a4e..4f78ed3 100644
+--- a/node_modules/@xmcl/installer/dist/index.js
++++ b/node_modules/@xmcl/installer/dist/index.js
+@@ -1296,7 +1296,7 @@ var MissingVersionJsonError = class extends Error {
+   }
+ };
+ async function getLiteloaderVersionList(options = {}) {
+-  const response = await (0, import_undici.request)(DEFAULT_VERSION_MANIFEST, { dispatcher: options.dispatcher, throwOnError: true });
++  const response = await (0, import_undici.request)(DEFAULT_VERSION_MANIFEST, { dispatcher: options.dispatcher });
+   const body = await response.body.text();
+   return LiteloaderVersionList.parse(body);
+ }
+@@ -2708,7 +2708,7 @@ function installJreFromMojangTask(options) {
+   } = options;
+   return (0, import_task8.task)("installJreFromMojang", async function() {
+     const info = await this.yield((0, import_task8.task)("fetchInfo", async () => {
+-      const response = await (0, import_undici4.request)("https://launchermeta.mojang.com/mc/launcher.json", { dispatcher: options.dispatcher, throwOnError: true });
++      const response = await (0, import_undici4.request)("https://launchermeta.mojang.com/mc/launcher.json", { dispatcher: options.dispatcher });
+       return response.body.json();
+     }));
+     const system = platform2.name;
+@@ -2918,7 +2918,7 @@ function normalizeUrls(url, fileHost) {
+ async function fetchJavaRuntimeManifest(options = {}) {
+   let manifestIndex = options.manifestIndex;
+   if (!manifestIndex) {
+-    const response = await (0, import_undici5.request)(normalizeUrls(options.url ?? DEFAULT_RUNTIME_ALL_URL, options.apiHost)[0], { dispatcher: options.dispatcher, throwOnError: true });
++    const response = await (0, import_undici5.request)(normalizeUrls(options.url ?? DEFAULT_RUNTIME_ALL_URL, options.apiHost)[0], { dispatcher: options.dispatcher });
+     manifestIndex = await response.body.json();
+   }
+   const manifest = manifestIndex;
+@@ -2958,7 +2958,7 @@ async function fetchJavaRuntimeManifest(options = {}) {
+   if (targets && targets.length > 0) {
+     const target = targets[0];
+     const manifestUrl = normalizeUrls(target.manifest.url, options.apiHost)[0];
+-    const response = await (0, import_undici5.request)(manifestUrl, { dispatcher: options.dispatcher, throwOnError: true });
++    const response = await (0, import_undici5.request)(manifestUrl, { dispatcher: options.dispatcher });
+     const manifest2 = await response.body.json();
+     const result = {
+       files: manifest2.files,
