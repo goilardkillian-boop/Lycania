@@ -31,7 +31,8 @@ async function findJavaExecutable(root: string): Promise<string | undefined> {
 }
 
 export interface JavaProgress {
-  progress: number
+  /** undefined quand la taille totale n'est pas encore connue (progression indéterminée) */
+  progress?: number
   detail: string
 }
 
@@ -57,8 +58,11 @@ export async function ensureJavaRuntime(
   const task = installJavaRuntimeTask({ destination, manifest })
   const context: TaskContext = {
     onUpdate: (t) => {
-      const total = t.total || 1
-      onProgress?.({ progress: Math.min(t.progress / total, 1), detail: `Installation de Java (${component})…` })
+      // t.total vaut -1 tant que la taille totale n'est pas encore connue (et peut rester négatif
+      // un moment le temps que les tâches enfants découvrent la leur) : dans ce cas on ne peut pas
+      // calculer de vrai pourcentage, autant l'indiquer comme indéterminé plutôt qu'afficher "0%".
+      const progress = t.total > 0 ? Math.min(Math.max(t.progress / t.total, 0), 1) : undefined
+      onProgress?.({ progress, detail: `Installation de Java (${component})…` })
     }
   }
   await task.startAndWait(context)

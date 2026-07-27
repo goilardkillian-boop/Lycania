@@ -50,7 +50,14 @@ export function Home({
     return 'Jouer'
   }, [installProgress, launchState.phase, busy])
 
-  const skinRenderUrl = `https://crafatar.com/renders/body/${profile.minecraftUuid}?overlay&scale=8`
+  // Plusieurs services de rendu de skin, essayés dans l'ordre : si l'un est indisponible
+  // (crafatar a déjà eu des pannes), on bascule sur le suivant plutôt que de laisser un vide.
+  const skinSources = [
+    `https://crafatar.com/renders/body/${profile.minecraftUuid}?overlay&scale=8`,
+    `https://mc-heads.net/body/${profile.minecraftUuid}/300`,
+    `https://minotar.net/body/${profile.minecraftUuid}/300.png`
+  ]
+  const [skinSourceIndex, setSkinSourceIndex] = useState(0)
 
   return (
     <div className="flex h-full flex-col">
@@ -73,13 +80,20 @@ export function Home({
         <aside className="flex flex-col items-center gap-3">
           <div className="relative flex h-56 w-40 items-end justify-center overflow-hidden rounded-xl border border-lycania-border bg-lycania-panel/60">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-lycania-blood/10 to-transparent" />
-            <img
-              src={skinRenderUrl}
-              alt={profile.minecraftUsername}
-              className="relative h-full object-contain"
-              style={{ imageRendering: 'pixelated' }}
-              onError={(e) => (e.currentTarget.style.visibility = 'hidden')}
-            />
+            {skinSourceIndex < skinSources.length ? (
+              <img
+                key={skinSourceIndex}
+                src={skinSources[skinSourceIndex]}
+                alt={profile.minecraftUsername}
+                className="relative h-full object-contain"
+                style={{ imageRendering: 'pixelated' }}
+                onError={() => setSkinSourceIndex((i) => i + 1)}
+              />
+            ) : (
+              <span className="relative pb-8 font-display text-3xl text-lycania-muted">
+                {profile.minecraftUsername.slice(0, 2).toUpperCase()}
+              </span>
+            )}
           </div>
           <span className="font-display text-sm tracking-wide text-lycania-bone">{profile.minecraftUsername}</span>
         </aside>

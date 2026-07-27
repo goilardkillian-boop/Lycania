@@ -16,9 +16,12 @@ function progressContext(
   detail: string
 ): TaskContext {
   return {
+    // task.total vaut -1 (pas 0) tant que la taille totale n'est pas connue, et peut rester
+    // négatif un moment le temps que les tâches enfants la découvrent : indéterminé dans ce cas,
+    // plutôt que d'afficher un faux "0%" figé.
     onUpdate: (task) => {
-      const total = task.total || 1
-      onProgress?.({ phase, progress: Math.min(task.progress / total, 1), detail })
+      const progress = task.total > 0 ? Math.min(Math.max(task.progress / task.total, 0), 1) : undefined
+      onProgress?.({ phase, progress, detail })
     }
   }
 }
