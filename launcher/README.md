@@ -112,6 +112,11 @@ manuellement, place-le dans `modpack/overrides/mods/<projectID>.jar` (renommé a
 pas le nom du fichier — il est repris tel quel par le pack, peu importe la version), commit, puis
 relance le workflow.
 
+**Mod maison (pas sur CurseForge du tout)** : pas de projectID à référencer dans
+`modpack/manifest.json`. Dépose simplement le `.jar` dans `modpack/custom-mods/`, commit, puis lance
+le workflow **Sync modpack to lycania-files** : le mod est repris tel quel dans le pack, sans passer
+par l'API CurseForge. Pour une mise à jour, remplace le fichier (même nom ou non).
+
 ## Limites connues de cet environnement de développement
 
 Ce launcher a été écrit et compilé (typecheck + build electron-vite) dans un environnement sandbox

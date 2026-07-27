@@ -32,6 +32,7 @@ if (!RELEASE_TAG) {
 
 const manifestPath = join(repoRoot, 'modpack', 'manifest.json')
 const overridesModsDir = join(repoRoot, 'modpack', 'overrides', 'mods')
+const customModsDir = join(repoRoot, 'modpack', 'custom-mods')
 const outDir = join(repoRoot, 'dist', 'release')
 
 async function sha1Of(path) {
@@ -90,6 +91,22 @@ async function fetchPreviousFilePaths() {
   return (previous.files ?? []).map((f) => f.path)
 }
 
+/**
+ * Mods maison, jamais publiés sur CurseForge: pas de projectID/fileID à résoudre, on les copie
+ * tels quels depuis modpack/custom-mods/*.jar directement dans le pack.
+ */
+async function addCustomMods(files) {
+  if (!existsSync(customModsDir)) return
+  const entries = (await readdir(customModsDir)).filter((e) => e.endsWith('.jar'))
+  for (const fileName of entries) {
+    const src = join(customModsDir, fileName)
+    const dest = join(outDir, 'mods', fileName)
+    await copyFile(src, dest)
+    files.push({ path: `mods/${fileName}`, sha1: await sha1Of(dest), size: (await import('node:fs')).statSync(dest).size })
+    console.log(`[custom] ${fileName}`)
+  }
+}
+
 async function main() {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
   const overrideProjectIds = await listOverrideProjectIds()
@@ -130,6 +147,8 @@ async function main() {
       process.exitCode = 1
     }
   }
+
+  await addCustomMods(files)
 
   const previousPaths = await fetchPreviousFilePaths()
   const currentPaths = new Set(files.map((f) => f.path))
