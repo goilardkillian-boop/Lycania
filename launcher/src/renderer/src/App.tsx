@@ -38,6 +38,23 @@ export default function App(): JSX.Element {
     }
   }, [])
 
+  useEffect(() => {
+    const target = 'train'
+    let typed = ''
+
+    function onKeyDown(e: KeyboardEvent): void {
+      if (e.key.length !== 1) return
+      typed = (typed + e.key.toLowerCase()).slice(-target.length)
+      if (typed === target) {
+        typed = ''
+        window.lycania.app.openExternal('https://www.sncf-connect.com/')
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   async function handleSignIn(): Promise<void> {
     await window.lycania.auth.signIn()
   }
