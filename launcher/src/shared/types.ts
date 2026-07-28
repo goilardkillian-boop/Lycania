@@ -69,7 +69,7 @@ export interface LauncherSettings {
   maxMemoryMb: number
   /** Chemin vers un exécutable java personnalisé, vide = auto */
   javaPath: string
-  /** Adresse du serveur pour la connexion automatique (Quick Play), ex: play.lycania.fr:25565 */
+  /** Adresse du serveur pour la connexion automatique (Quick Play), ex: play.lycania.com:25565 */
   serverAddress: string
   /** Arguments JVM additionnels, un par ligne */
   extraJvmArgs: string
