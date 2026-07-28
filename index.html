@@ -126,6 +126,16 @@ h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4.5vw,
 .divider::after{background:linear-gradient(90deg,var(--border),transparent)}
 .divider svg{flex-shrink:0}
 
+section.trailer{max-width:1000px}
+.video-frame{
+  position:relative;max-width:900px;margin:0 auto;border-radius:14px;overflow:hidden;
+  border:1px solid var(--blood);background:var(--void);
+  box-shadow:0 30px 80px -25px rgba(196,40,60,.45),0 0 0 1px rgba(0,0,0,.5)}
+.video-frame::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.55)}
+.video-frame video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+
 .prose p{margin-bottom:1.3rem;color:#d8c3c6}
 .prose strong{color:var(--bone);font-weight:600}
 .prose .rune{
@@ -333,6 +343,23 @@ footer .credits{font-size:.85rem;opacity:.6;margin-top:.8rem}
   <span class="scroll-hint" aria-hidden="true">Descendre</span>
 </header>
 
+<section class="trailer">
+  <div class="reveal" style="text-align:center">
+    <p class="eyebrow">La bande-annonce</p>
+    <h2>Voyez Lycania de vos propres yeux</h2>
+  </div>
+  <div class="video-frame reveal">
+    <video id="trailer-video" controls preload="metadata" playsinline>
+      <source src="assets/video/trailer.mp4" type="video/mp4">
+      Votre navigateur ne prend pas en charge la lecture vidéo. <a href="assets/video/trailer.mp4">Télécharger la vidéo</a>.
+    </video>
+  </div>
+</section>
+
+<div class="divider reveal" aria-hidden="true">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+</div>
+
 <section id="lore" class="prose">
   <div class="reveal">
     <p class="eyebrow">Synopsis</p>
@@ -524,6 +551,17 @@ if (localStorage.getItem('lycania-sound') === 'on') {
     document.removeEventListener('click', resumeOnce);
   };
   document.addEventListener('click', resumeOnce);
+}
+
+// coupe l'ambiance sonore quand le trailer démarre, pour ne pas superposer les deux pistes
+const trailerVideo = document.getElementById('trailer-video');
+if (trailerVideo) {
+  trailerVideo.addEventListener('play', () => {
+    if (!ambience.paused) {
+      ambience.pause();
+      setSoundState(false);
+    }
+  });
 }
 
 // sélecteur d'OS : détecte le système du visiteur, le met en avant, et résout les liens
