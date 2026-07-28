@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 import type {
+  AppSystemInfo,
   AuthState,
   InstallProgress,
   LauncherSettings,
@@ -42,6 +43,7 @@ declare global {
       }
       app: {
         getVersionInfo: () => Promise<{ launcherVersion: string }>
+        getSystemInfo: () => Promise<AppSystemInfo>
         openExternal: (url: string) => Promise<void>
       }
     }

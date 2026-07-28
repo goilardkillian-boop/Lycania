@@ -38,22 +38,23 @@ export default function App(): JSX.Element {
     }
   }, [])
 
-  useEffect(() => {
-    const target = 'train'
-    let typed = ''
+  const [trainProgress, setTrainProgress] = useState(0)
 
-    function onKeyDown(e: KeyboardEvent): void {
-      if (e.key.length !== 1) return
-      typed = (typed + e.key.toLowerCase()).slice(-target.length)
-      if (typed === target) {
-        typed = ''
-        window.lycania.app.openExternal('https://www.sncf-connect.com/')
+  function handleTrainLetterHit(letter: string): void {
+    const sequence = ['T', 'R', 'A', 'I', 'N']
+    setTrainProgress((prev) => {
+      if (letter === sequence[prev]) {
+        const next = prev + 1
+        if (next === sequence.length) {
+          window.lycania.app.openExternal('https://www.sncf-connect.com/')
+          return 0
+        }
+        return next
       }
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+      // Un clic hors séquence relance depuis le début si c'était bien un "T".
+      return letter === sequence[0] ? 1 : 0
+    })
+  }
 
   async function handleSignIn(): Promise<void> {
     await window.lycania.auth.signIn()
@@ -92,7 +93,12 @@ export default function App(): JSX.Element {
       )}
 
       {auth.status !== 'signed-in' && (
-        <Login onSignIn={handleSignIn} progress={signInProgress} error={auth.status === 'error' ? auth.error : undefined} />
+        <Login
+          onSignIn={handleSignIn}
+          progress={signInProgress}
+          error={auth.status === 'error' ? auth.error : undefined}
+          onTrainLetterHit={handleTrainLetterHit}
+        />
       )}
 
       {auth.status === 'signed-in' && auth.profile && settings && screen === 'home' && (

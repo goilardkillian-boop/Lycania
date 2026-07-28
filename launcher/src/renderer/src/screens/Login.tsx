@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import type { SignInProgress } from '@shared/types'
 import logo from '../assets/logo.jpg'
+import { TrailerModal } from '../components/TrailerModal'
+import { TrainLetter } from '../components/TrainLetter'
+import { SITE_URL } from '../constants'
 
 interface Props {
   onSignIn: () => Promise<void>
   progress?: SignInProgress
   error?: string
+  onTrainLetterHit: (letter: string) => void
 }
 
-export function Login({ onSignIn, progress, error }: Props): JSX.Element {
+export function Login({ onSignIn, progress, error, onTrainLetterHit }: Props): JSX.Element {
   const [pending, setPending] = useState(false)
   const [showLore, setShowLore] = useState(false)
+  const [showTrailer, setShowTrailer] = useState(false)
 
   async function handleClick(): Promise<void> {
     setPending(true)
@@ -38,17 +43,33 @@ export function Login({ onSignIn, progress, error }: Props): JSX.Element {
         </div>
 
         <p className="max-w-md font-serif text-base leading-relaxed text-lycania-muted">
-          La lune deviendra rouge pour la première fois depuis des siècles. Les clans des Loups, des
-          Vampires et des Chasseurs vont renaître. Un rôle te sera attribué. Sauras-tu détecter les
-          créatures maléfiques parmi les tiens, et surtout, survivras-tu ?
+          {'La lune deviendra rouge pour la première fois depuis des siècles. Les clans des Loups, des Vampires e'}
+          <TrainLetter letter="T" char="t" onHit={onTrainLetterHit} />
+          {' des Chasseu'}
+          <TrainLetter letter="R" char="r" onHit={onTrainLetterHit} />
+          {'s vont ren'}
+          <TrainLetter letter="A" char="a" onHit={onTrainLetterHit} />
+          {'ître. Un rôle te sera attr'}
+          <TrainLetter letter="I" char="i" onHit={onTrainLetterHit} />
+          {'bué. Sauras-tu détecter les créatures maléfiques parmi les tie'}
+          <TrainLetter letter="N" char="n" onHit={onTrainLetterHit} />
+          {'s, et surtout, survivras-tu ?'}
         </p>
 
-        <button
-          onClick={() => setShowLore((v) => !v)}
-          className="text-xs uppercase tracking-widest text-lycania-wisteriaSoft transition hover:text-lycania-bone"
-        >
-          {showLore ? 'Replier le récit' : 'Découvrir le récit'}
-        </button>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          <button
+            onClick={() => setShowLore((v) => !v)}
+            className="text-xs uppercase tracking-widest text-lycania-wisteriaSoft transition hover:text-lycania-bone"
+          >
+            {showLore ? 'Replier le récit' : 'Découvrir le récit'}
+          </button>
+          <button
+            onClick={() => setShowTrailer(true)}
+            className="text-xs uppercase tracking-widest text-lycania-wisteriaSoft transition hover:text-lycania-bone"
+          >
+            Voir la bande-annonce
+          </button>
+        </div>
 
         {showLore && (
           <blockquote className="max-w-md border-l-2 border-lycania-border pl-4 text-left font-serif text-sm italic leading-relaxed text-lycania-muted">
@@ -75,7 +96,16 @@ export function Login({ onSignIn, progress, error }: Props): JSX.Element {
         <p className="text-xs text-lycania-muted">
           Un compte Microsoft possédant Minecraft: Java Edition est requis.
         </p>
+
+        <button
+          onClick={() => window.lycania.app.openExternal(SITE_URL)}
+          className="text-xs text-lycania-muted underline decoration-lycania-border underline-offset-4 transition hover:text-lycania-bone"
+        >
+          Visiter le site de Lycania
+        </button>
       </div>
+
+      <TrailerModal open={showTrailer} onClose={() => setShowTrailer(false)} />
     </div>
   )
 }
