@@ -34,8 +34,11 @@ jobs:
 
       - name: Créer la release avec les mods + le manifeste (URLs provisoires)
         run: |
+          # dist/release/ peut contenir plusieurs dossiers (mods/, shaderpacks/, config/...) : on
+          # prend tous les fichiers, pas seulement ceux de mods/, sans casser sur les noms avec espaces.
+          mapfile -d '' -t assets < <(find dist/release -type f ! -name pack-manifest.json -print0)
           gh release create "$RELEASE_TAG" \
-            dist/release/mods/* dist/release/pack-manifest.json \
+            "${assets[@]}" dist/release/pack-manifest.json \
             --repo "$MODPACK_FILES_REPO" \
             --title "$RELEASE_TAG" \
             --notes "Publication automatique depuis Lycania (${{ github.sha }})"
