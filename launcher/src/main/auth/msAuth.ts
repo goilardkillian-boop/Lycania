@@ -105,7 +105,12 @@ function receiveAuthorizationCode(
       authorizeUrl.searchParams.set('state', state)
       authorizeUrl.searchParams.set('code_challenge', challenge)
       authorizeUrl.searchParams.set('code_challenge_method', 'S256')
-      authorizeUrl.searchParams.set('prompt', 'select_account')
+      // "select_account" est documenté comme peu fiable pour les comptes Microsoft personnels
+      // (contrairement aux comptes professionnels) : il peut reconnecter silencieusement au
+      // dernier compte utilisé, ou entrer en conflit quand on change de compte entre deux
+      // tentatives, ce qui provoque une erreur générique côté Microsoft. "login" force une
+      // ré-authentification complète à chaque tentative, ce qui est fiable pour changer de compte.
+      authorizeUrl.searchParams.set('prompt', 'login')
 
       shell.openExternal(authorizeUrl.toString()).catch((err) => {
         cleanup()
