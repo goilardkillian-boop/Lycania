@@ -64,7 +64,7 @@ export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
             value={form.serverAddress}
             onChange={(e) => setForm({ ...form, serverAddress: e.target.value })}
             onBlur={(e) => persist({ serverAddress: e.target.value })}
-            placeholder="play.lycania.fr:25565"
+            placeholder="play.lycania.com:25565"
             className="w-full rounded-lg border border-lycania-border bg-lycania-panel px-3 py-2 text-sm outline-none focus:border-lycania-blood"
           />
         </section>
