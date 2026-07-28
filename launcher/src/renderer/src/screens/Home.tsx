@@ -10,6 +10,7 @@ interface Props {
   onSignOut: () => void
   onOpenSettings: () => void
   onPlay: () => Promise<void>
+  starting: boolean
   installProgress?: InstallProgress
   launchState: LaunchState
   logLines: string[]
@@ -33,6 +34,7 @@ export function Home({
   onSignOut,
   onOpenSettings,
   onPlay,
+  starting,
   installProgress,
   launchState,
   logLines
@@ -41,6 +43,7 @@ export function Home({
   const [showTrailer, setShowTrailer] = useState(false)
 
   const busy =
+    starting ||
     (installProgress && installProgress.phase !== 'idle' && installProgress.phase !== 'ready' && installProgress.phase !== 'error') ||
     launchState.phase === 'preparing' ||
     launchState.phase === 'starting'
