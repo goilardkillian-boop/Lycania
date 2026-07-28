@@ -57,6 +57,11 @@ export class AuthManager extends EventEmitter {
     const controller = new AbortController()
     this.signInAbortController = controller
 
+    // Efface tout de suite un éventuel message d'erreur d'une tentative précédente : sans ça, il
+    // reste affiché pendant toute la nouvelle tentative, comme si elle échouait déjà avant même
+    // d'avoir commencé.
+    this.emit('state', { status: 'signing-in' } satisfies AuthState)
+
     try {
       this.emitProgress('opening-browser', 'Ouverture du navigateur pour la connexion Microsoft…')
       const msTokens = await (async () => {
