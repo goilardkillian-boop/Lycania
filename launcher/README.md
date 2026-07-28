@@ -117,6 +117,14 @@ relance le workflow.
 le workflow **Sync modpack to lycania-files** : le mod est repris tel quel dans le pack, sans passer
 par l'API CurseForge. Pour une mise à jour, remplace le fichier (même nom ou non).
 
+**Shaderpack (ou tout ce qui n'est pas un mod)** : par défaut, chaque entrée de `manifest.json` est
+placée dans `mods/`. Pour un shaderpack CurseForge, ajoute `"folder": "shaderpacks"` à son entrée
+(voir l'exemple de Complementary Shaders, projet 385587, dans `modpack/manifest.json`). Pour son
+fichier de config, ou un shaderpack qui n'est pas sur CurseForge : dépose-le dans
+`modpack/custom-files/`, en reproduisant l'arborescence réelle du dossier `.minecraft` (ex:
+`modpack/custom-files/shaderpacks/MonShader.zip`, `modpack/custom-files/config/monshader.txt`).
+Chaque fichier est repris tel quel, au même chemin, dans le pack.
+
 ## Limites connues de cet environnement de développement
 
 Ce launcher a été écrit et compilé (typecheck + build electron-vite) dans un environnement sandbox

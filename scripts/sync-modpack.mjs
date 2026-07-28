@@ -8,9 +8,9 @@
 // Conçu pour tourner dans GitHub Actions (accès réseau complet), pas dans le sandbox de dev.
 
 import { createHash } from 'node:crypto'
-import { createWriteStream, existsSync } from 'node:fs'
+import { createWriteStream, existsSync, statSync } from 'node:fs'
 import { mkdir, readFile, readdir, writeFile, copyFile } from 'node:fs/promises'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative, sep } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
 
@@ -33,6 +33,7 @@ if (!RELEASE_TAG) {
 const manifestPath = join(repoRoot, 'modpack', 'manifest.json')
 const overridesModsDir = join(repoRoot, 'modpack', 'overrides', 'mods')
 const customModsDir = join(repoRoot, 'modpack', 'custom-mods')
+const customFilesDir = join(repoRoot, 'modpack', 'custom-files')
 const outDir = join(repoRoot, 'dist', 'release')
 
 async function sha1Of(path) {
@@ -102,8 +103,42 @@ async function addCustomMods(files) {
     const src = join(customModsDir, fileName)
     const dest = join(outDir, 'mods', fileName)
     await copyFile(src, dest)
-    files.push({ path: `mods/${fileName}`, sha1: await sha1Of(dest), size: (await import('node:fs')).statSync(dest).size })
+    files.push({ path: `mods/${fileName}`, sha1: await sha1Of(dest), size: statSync(dest).size })
     console.log(`[custom] ${fileName}`)
+  }
+}
+
+async function walkFiles(dir, base = dir) {
+  const entries = await readdir(dir, { withFileTypes: true })
+  const results = []
+  for (const entry of entries) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      results.push(...(await walkFiles(full, base)))
+    } else if (entry.isFile() && entry.name !== '.gitkeep') {
+      results.push(relative(base, full))
+    }
+  }
+  return results
+}
+
+/**
+ * Tout ce qui n'est ni un mod CurseForge ni un jar maison: shaderpack, resourcepack, fichier de
+ * config, etc. modpack/custom-files/ reproduit l'arborescence réelle du dossier .minecraft
+ * (ex: custom-files/shaderpacks/MonShader.zip, custom-files/config/monshader.txt), et chaque
+ * fichier est repris tel quel, au même chemin relatif, dans le pack.
+ */
+async function addCustomFiles(files) {
+  if (!existsSync(customFilesDir)) return
+  const relPaths = await walkFiles(customFilesDir)
+  for (const relPath of relPaths) {
+    const posixPath = relPath.split(sep).join('/')
+    const src = join(customFilesDir, relPath)
+    const dest = join(outDir, relPath)
+    await mkdir(dirname(dest), { recursive: true })
+    await copyFile(src, dest)
+    files.push({ path: posixPath, sha1: await sha1Of(dest), size: statSync(dest).size })
+    console.log(`[custom-file] ${posixPath}`)
   }
 }
 
@@ -117,16 +152,20 @@ async function main() {
   const skipped = []
 
   for (const entry of manifest.files) {
-    const { projectID, fileID } = entry
+    // `folder` est optionnel (défaut "mods"): permet de ranger un fichier CurseForge ailleurs,
+    // typiquement "shaderpacks" pour un shaderpack (ex: Complementary Shaders, projet 385587).
+    const { projectID, fileID, folder = 'mods' } = entry
     try {
       const info = await curseforgeFile(projectID, fileID)
       const fileName = info.fileName
+      const relPath = `${folder}/${fileName}`
 
       if (overrideProjectIds.has(String(projectID))) {
         const src = join(overridesModsDir, `${projectID}.jar`)
-        const dest = join(outDir, 'mods', fileName)
+        const dest = join(outDir, folder, fileName)
+        await mkdir(dirname(dest), { recursive: true })
         await copyFile(src, dest)
-        files.push({ path: `mods/${fileName}`, sha1: await sha1Of(dest), size: (await import('node:fs')).statSync(dest).size })
+        files.push({ path: relPath, sha1: await sha1Of(dest), size: statSync(dest).size })
         console.log(`[override] ${fileName} (projet ${projectID})`)
         continue
       }
@@ -137,10 +176,10 @@ async function main() {
         continue
       }
 
-      const dest = join(outDir, 'mods', fileName)
+      const dest = join(outDir, folder, fileName)
       await downloadTo(info.downloadUrl, dest)
       const sha1 = info.hashes?.find((h) => h.algo === 1)?.value?.toLowerCase() || (await sha1Of(dest))
-      files.push({ path: `mods/${fileName}`, sha1, size: info.fileLength })
+      files.push({ path: relPath, sha1, size: info.fileLength })
       console.log(`[ok] ${fileName}`)
     } catch (err) {
       console.error(`Erreur pour le mod ${projectID}/${fileID}:`, err.message)
@@ -149,6 +188,7 @@ async function main() {
   }
 
   await addCustomMods(files)
+  await addCustomFiles(files)
 
   const previousPaths = await fetchPreviousFilePaths()
   const currentPaths = new Set(files.map((f) => f.path))
