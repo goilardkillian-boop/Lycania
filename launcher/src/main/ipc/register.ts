@@ -1,4 +1,5 @@
 import { app, ipcMain, BrowserWindow, dialog, shell } from 'electron'
+import { totalmem } from 'node:os'
 import { IPC } from '@shared/types'
 import type { LauncherSettings } from '@shared/types'
 import { authManager, gameState } from '../gameState'
@@ -103,6 +104,7 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle(IPC.appGetVersionInfo, () => ({ launcherVersion: app.getVersion() }))
+  ipcMain.handle(IPC.appGetSystemInfo, () => ({ totalMemoryMb: Math.floor(totalmem() / (1024 * 1024)) }))
   ipcMain.handle(IPC.appOpenExternal, (_e, url: string) => shell.openExternal(url))
   ipcMain.handle(IPC.updateInstallNow, () => installUpdateNow())
 }

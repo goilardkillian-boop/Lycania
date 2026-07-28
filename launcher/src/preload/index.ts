@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '@shared/types'
 import type {
+  AppSystemInfo,
   AuthState,
   InstallProgress,
   LauncherSettings,
@@ -46,6 +47,7 @@ const api = {
   },
   app: {
     getVersionInfo: (): Promise<{ launcherVersion: string }> => ipcRenderer.invoke(IPC.appGetVersionInfo),
+    getSystemInfo: (): Promise<AppSystemInfo> => ipcRenderer.invoke(IPC.appGetSystemInfo),
     openExternal: (url: string): Promise<void> => ipcRenderer.invoke(IPC.appOpenExternal, url)
   }
 }

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import type { GameProfile, InstallProgress, LaunchState } from '@shared/types'
 import { ProgressBar } from '../components/ProgressBar'
+import { TrailerModal } from '../components/TrailerModal'
+import { SITE_URL } from '../constants'
 import logo from '../assets/logo.jpg'
 
 interface Props {
@@ -36,6 +38,7 @@ export function Home({
   logLines
 }: Props): JSX.Element {
   const [showConsole, setShowConsole] = useState(false)
+  const [showTrailer, setShowTrailer] = useState(false)
 
   const busy =
     (installProgress && installProgress.phase !== 'idle' && installProgress.phase !== 'ready' && installProgress.phase !== 'error') ||
@@ -67,6 +70,15 @@ export function Home({
           <span className="font-display text-lg tracking-wide">Lycania</span>
         </div>
         <div className="flex items-center gap-5">
+          <button
+            onClick={() => window.lycania.app.openExternal(SITE_URL)}
+            className="text-sm text-lycania-muted transition hover:text-lycania-bone"
+          >
+            Le site
+          </button>
+          <button onClick={() => setShowTrailer(true)} className="text-sm text-lycania-muted transition hover:text-lycania-bone">
+            Bande-annonce
+          </button>
           <button onClick={onOpenSettings} className="text-sm text-lycania-muted transition hover:text-lycania-bone">
             Paramètres
           </button>
@@ -138,6 +150,8 @@ export function Home({
           {logLines.length === 0 ? <p>Aucune sortie pour le moment.</p> : logLines.map((line, i) => <div key={i}>{line}</div>)}
         </div>
       )}
+
+      <TrailerModal open={showTrailer} onClose={() => setShowTrailer(false)} />
     </div>
   )
 }

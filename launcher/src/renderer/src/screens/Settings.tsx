@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { LauncherSettings } from '@shared/types'
+import type { AppSystemInfo, LauncherSettings } from '@shared/types'
+import { RamSlider } from '../components/RamSlider'
+import { TrailerModal } from '../components/TrailerModal'
+import { SITE_URL } from '../constants'
 
 interface Props {
   settings: LauncherSettings
@@ -11,9 +14,12 @@ export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
   const [form, setForm] = useState(settings)
   const [saving, setSaving] = useState(false)
   const [launcherVersion, setLauncherVersion] = useState<string>()
+  const [systemInfo, setSystemInfo] = useState<AppSystemInfo>()
+  const [showTrailer, setShowTrailer] = useState(false)
 
   useEffect(() => {
     window.lycania.app.getVersionInfo().then((info) => setLauncherVersion(info.launcherVersion))
+    window.lycania.app.getSystemInfo().then(setSystemInfo)
   }, [])
 
   async function persist(patch: Partial<LauncherSettings>): Promise<void> {
@@ -35,6 +41,11 @@ export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
   async function pickJava(): Promise<void> {
     const path = await window.lycania.settings.pickJava()
     if (path) await persist({ javaPath: path })
+  }
+
+  async function persistMemory(maxMemoryMb: number): Promise<void> {
+    const minMemoryMb = Math.min(1024, Math.floor(maxMemoryMb / 2))
+    await persist({ maxMemoryMb, minMemoryMb })
   }
 
   return (
@@ -95,31 +106,13 @@ export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
           </div>
         </section>
 
-        <section className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1 block text-sm text-lycania-muted">Mémoire minimale (Mo)</label>
-            <input
-              type="number"
-              min={512}
-              step={256}
-              value={form.minMemoryMb}
-              onChange={(e) => setForm({ ...form, minMemoryMb: Number(e.target.value) })}
-              onBlur={(e) => persist({ minMemoryMb: Number(e.target.value) })}
-              className="w-full rounded-lg border border-lycania-border bg-lycania-panel px-3 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-lycania-muted">Mémoire maximale (Mo)</label>
-            <input
-              type="number"
-              min={1024}
-              step={256}
-              value={form.maxMemoryMb}
-              onChange={(e) => setForm({ ...form, maxMemoryMb: Number(e.target.value) })}
-              onBlur={(e) => persist({ maxMemoryMb: Number(e.target.value) })}
-              className="w-full rounded-lg border border-lycania-border bg-lycania-panel px-3 py-2 text-sm"
-            />
-          </div>
+        <section>
+          <RamSlider
+            valueMb={form.maxMemoryMb}
+            totalMemoryMb={systemInfo?.totalMemoryMb}
+            onChange={(mb) => setForm({ ...form, maxMemoryMb: mb })}
+            onCommit={persistMemory}
+          />
         </section>
 
         <section>
@@ -147,8 +140,25 @@ export function Settings({ settings, onSave, onBack }: Props): JSX.Element {
 
         {saving && <p className="text-xs text-lycania-muted">Enregistrement…</p>}
 
+        <section className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-lycania-border/60 pt-5 text-sm">
+          <button
+            onClick={() => setShowTrailer(true)}
+            className="text-lycania-wisteriaSoft transition hover:text-lycania-bone"
+          >
+            Revoir la bande-annonce
+          </button>
+          <button
+            onClick={() => window.lycania.app.openExternal(SITE_URL)}
+            className="text-lycania-wisteriaSoft transition hover:text-lycania-bone"
+          >
+            Visiter le site de Lycania
+          </button>
+        </section>
+
         {launcherVersion && <p className="text-xs text-lycania-muted">Launcher Lycania v{launcherVersion}</p>}
       </div>
+
+      <TrailerModal open={showTrailer} onClose={() => setShowTrailer(false)} />
     </div>
   )
 }

@@ -102,6 +102,11 @@ export interface AppVersionInfo {
   launcherVersion: string
 }
 
+export interface AppSystemInfo {
+  /** RAM totale de la machine, en Mo */
+  totalMemoryMb: number
+}
+
 export const IPC = {
   authGetState: 'auth:get-state',
   authSignIn: 'auth:sign-in',
@@ -128,5 +133,6 @@ export const IPC = {
   updateInstallNow: 'update:install-now',
 
   appGetVersionInfo: 'app:get-version-info',
+  appGetSystemInfo: 'app:get-system-info',
   appOpenExternal: 'app:open-external'
 } as const

@@ -93,3 +93,58 @@ body {
   animation-duration: 65s;
   animation-direction: alternate-reverse;
 }
+
+.ram-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    #c4283c 0%,
+    #c4283c var(--fill, 0%),
+    #3a1620 var(--fill, 0%),
+    #3a1620 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.ram-slider:focus-visible {
+  box-shadow: 0 0 0 3px rgba(196, 40, 60, 0.35);
+}
+
+.ram-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f3e9ea;
+  border: 2px solid #c4283c;
+  box-shadow: 0 0 12px -2px #c4283c;
+  cursor: pointer;
+}
+
+.ram-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #3a1620;
+}
+
+.ram-slider::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: #c4283c;
+}
+
+.ram-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f3e9ea;
+  border: 2px solid #c4283c;
+  box-shadow: 0 0 12px -2px #c4283c;
+  cursor: pointer;
+}
