@@ -64,13 +64,22 @@ export default function App(): JSX.Element {
     await window.lycania.auth.signOut()
   }
 
+  const [starting, setStarting] = useState(false)
+
   async function handlePlay(): Promise<void> {
+    // Le bouton ne se désactive (via installProgress/launchState) qu'une fois le premier
+    // événement IPC reçu, ce qui laisse une fenêtre où un double-clic déclenche deux
+    // installations/lancements en parallèle. Ce verrou local coupe court dès le premier clic.
+    if (starting) return
+    setStarting(true)
     setLogLines([])
     try {
       await window.lycania.install.start()
       await window.lycania.launch.start()
     } catch {
       // L'état d'erreur détaillé est déjà diffusé via installOnProgress / launchOnState.
+    } finally {
+      setStarting(false)
     }
   }
 
@@ -107,6 +116,7 @@ export default function App(): JSX.Element {
           onSignOut={handleSignOut}
           onOpenSettings={() => setScreen('settings')}
           onPlay={handlePlay}
+          starting={starting}
           installProgress={installProgress}
           launchState={launchState}
           logLines={logLines}

@@ -53,37 +53,43 @@ export function registerIpcHandlers(): void {
   })
 
   ipcMain.handle(IPC.launchStart, async () => {
-    if (!gameState.resolvedVersion || !gameState.packManifest) {
-      throw new Error("Le jeu n'est pas installé. Lance l'installation avant de jouer.")
+    try {
+      if (!gameState.resolvedVersion || !gameState.packManifest) {
+        throw new Error("Le jeu n'est pas installé. Lance l'installation avant de jouer.")
+      }
+
+      const settings = await loadSettings()
+      const { accessToken, profile } = await authManager.getValidMinecraftAccessToken()
+
+      broadcast(IPC.launchOnState, { phase: 'preparing' })
+      const { process: child, watcher } = await launchGame({
+        resolvedVersion: gameState.resolvedVersion,
+        settings,
+        profile,
+        accessToken
+      })
+      gameState.runningProcess = child
+      broadcast(IPC.launchOnState, { phase: 'starting' })
+
+      child.stdout?.on('data', (buf: Buffer) => broadcast(IPC.launchOnLog, buf.toString('utf8')))
+      child.stderr?.on('data', (buf: Buffer) => broadcast(IPC.launchOnLog, buf.toString('utf8')))
+
+      watcher.on('minecraft-window-ready', () => broadcast(IPC.launchOnState, { phase: 'running' }))
+      watcher.on('minecraft-exit', (event) => {
+        gameState.runningProcess = undefined
+        broadcast(IPC.launchOnState, { phase: 'exited', exitCode: event.code })
+      })
+      watcher.on('error', (err) => {
+        gameState.runningProcess = undefined
+        broadcast(IPC.launchOnState, { phase: 'error', error: err instanceof Error ? err.message : String(err) })
+      })
+
+      return { started: true }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      broadcast(IPC.launchOnState, { phase: 'error', error: message })
+      throw err
     }
-
-    const settings = await loadSettings()
-    const { accessToken, profile } = await authManager.getValidMinecraftAccessToken()
-
-    broadcast(IPC.launchOnState, { phase: 'preparing' })
-    const { process: child, watcher } = await launchGame({
-      resolvedVersion: gameState.resolvedVersion,
-      settings,
-      profile,
-      accessToken
-    })
-    gameState.runningProcess = child
-    broadcast(IPC.launchOnState, { phase: 'starting' })
-
-    child.stdout?.on('data', (buf: Buffer) => broadcast(IPC.launchOnLog, buf.toString('utf8')))
-    child.stderr?.on('data', (buf: Buffer) => broadcast(IPC.launchOnLog, buf.toString('utf8')))
-
-    watcher.on('minecraft-window-ready', () => broadcast(IPC.launchOnState, { phase: 'running' }))
-    watcher.on('minecraft-exit', (event) => {
-      gameState.runningProcess = undefined
-      broadcast(IPC.launchOnState, { phase: 'exited', exitCode: event.code })
-    })
-    watcher.on('error', (err) => {
-      gameState.runningProcess = undefined
-      broadcast(IPC.launchOnState, { phase: 'error', error: err instanceof Error ? err.message : String(err) })
-    })
-
-    return { started: true }
   })
 
   ipcMain.handle(IPC.settingsGet, () => loadSettings())
