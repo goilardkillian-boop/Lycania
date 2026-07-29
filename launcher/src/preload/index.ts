@@ -43,7 +43,8 @@ const api = {
     onAvailable: (cb: (version: string) => void) => on(IPC.updateOnAvailable, cb),
     onProgress: (cb: (percent: number) => void) => on(IPC.updateOnProgress, cb),
     onDownloaded: (cb: (version: string) => void) => on(IPC.updateOnDownloaded, cb),
-    installNow: (): Promise<void> => ipcRenderer.invoke(IPC.updateInstallNow)
+    installNow: (): Promise<void> => ipcRenderer.invoke(IPC.updateInstallNow),
+    checkBeforePlay: (): Promise<'up-to-date' | 'installing'> => ipcRenderer.invoke(IPC.updateCheckBeforePlay)
   },
   app: {
     getVersionInfo: (): Promise<{ launcherVersion: string }> => ipcRenderer.invoke(IPC.appGetVersionInfo),

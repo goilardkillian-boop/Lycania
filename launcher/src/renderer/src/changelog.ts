@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 /** La plus récente en premier. Pense à ajouter une entrée à chaque mise à jour notable. */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.1.11',
+    date: '29 juillet 2026',
+    changes: [
+      "Les mises à jour du launcher sont maintenant obligatoires : impossible de jouer sur une version obsolète.",
+      "L'aperçu TikTok affiche maintenant de vraies vidéos directement dans le launcher."
+    ]
+  },
+  {
     version: '0.1.10',
     date: '29 juillet 2026',
     changes: [

@@ -1,4 +1,6 @@
-import { TIKTOK_HANDLE, TIKTOK_URL } from '../constants'
+import { useState } from 'react'
+import { TIKTOK_HANDLE } from '../constants'
+import { TikTokModal } from './TikTokModal'
 
 /**
  * Glyphe original (pas le logo TikTok, qui est une marque déposée) évoquant simplement
@@ -15,6 +17,8 @@ function ClipIcon(): JSX.Element {
 }
 
 export function TikTokCard(): JSX.Element {
+  const [open, setOpen] = useState(false)
+
   return (
     <div className="w-64 rounded-xl border border-lycania-border bg-lycania-panel/60 p-4">
       <p className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-lycania-wisteriaSoft">
@@ -26,12 +30,14 @@ export function TikTokCard(): JSX.Element {
         Builds, ambiance et coulisses du serveur, en clips courts.
       </p>
       <button
-        onClick={() => window.lycania.app.openExternal(TIKTOK_URL)}
+        onClick={() => setOpen(true)}
         className="mt-4 w-full rounded-lg border border-lycania-border py-2 text-xs font-medium text-lycania-bone
         transition hover:border-lycania-blood hover:shadow-[0_0_18px_-6px_theme(colors.lycania.blood)]"
       >
-        Voir sur TikTok
+        Voir les vidéos
       </button>
+
+      <TikTokModal open={open} onClose={() => setOpen(false)} />
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { syncModpack } from '../modpack/sync'
 import { launchGame } from '../launch/launch'
 import { loadSettings, saveSettings } from '../settings/store'
 import { config } from '../config'
-import { installUpdateNow } from '../update/autoUpdate'
+import { installUpdateNow, checkForUpdateBeforePlay } from '../update/autoUpdate'
 import { resolveJava } from '@xmcl/installer'
 
 function broadcast(channel: string, ...args: unknown[]): void {
@@ -113,4 +113,10 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.appGetSystemInfo, () => ({ totalMemoryMb: Math.floor(totalmem() / (1024 * 1024)) }))
   ipcMain.handle(IPC.appOpenExternal, (_e, url: string) => shell.openExternal(url))
   ipcMain.handle(IPC.updateInstallNow, () => installUpdateNow())
+  ipcMain.handle(IPC.updateCheckBeforePlay, () => {
+    // En dev (non packagé), electron-updater n'a pas de feed valide : on ne bloque pas le
+    // développeur, on considère juste qu'il n'y a jamais de mise à jour à faire.
+    if (!app.isPackaged) return Promise.resolve('up-to-date' as const)
+    return checkForUpdateBeforePlay()
+  })
 }

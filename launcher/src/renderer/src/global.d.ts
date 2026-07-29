@@ -40,6 +40,7 @@ declare global {
         onProgress: (cb: (percent: number) => void) => () => void
         onDownloaded: (cb: (version: string) => void) => () => void
         installNow: () => Promise<void>
+        checkBeforePlay: () => Promise<'up-to-date' | 'installing'>
       }
       app: {
         getVersionInfo: () => Promise<{ launcherVersion: string }>
