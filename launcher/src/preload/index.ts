@@ -3,6 +3,7 @@ import { IPC } from '@shared/types'
 import type {
   AppSystemInfo,
   AuthState,
+  ChangelogEntry,
   InstallProgress,
   LauncherSettings,
   LaunchState,
@@ -53,6 +54,9 @@ const api = {
   },
   tiktok: {
     getVideos: (): Promise<string[]> => ipcRenderer.invoke(IPC.tiktokGetVideos)
+  },
+  changelog: {
+    get: (): Promise<ChangelogEntry[]> => ipcRenderer.invoke(IPC.changelogGet)
   }
 }
 

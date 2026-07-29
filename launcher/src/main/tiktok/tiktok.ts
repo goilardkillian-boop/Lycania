@@ -1,4 +1,4 @@
-import { config } from '../config'
+import { fetchLauncherConfigJson } from '../launcherConfig'
 
 interface TikTokVideosFile {
   videoIds: unknown
@@ -17,21 +17,12 @@ function extractVideoId(entry: unknown): string | undefined {
 }
 
 /**
- * Récupère la liste des vidéos TikTok à afficher, depuis launcher-config/tiktok-videos.json sur
- * la branche main du dépôt du launcher. Volontairement lu en direct via raw.githubusercontent.com
- * à chaque appel (pas de cache ni de build requis) : coller un lien de vidéo dans ce fichier sur
- * GitHub suffit à le faire apparaître dans le launcher, sans nouvelle version à publier.
+ * Récupère la liste des vidéos TikTok à afficher, depuis launcher-config/tiktok-videos.json.
+ * Coller un lien de vidéo dans ce fichier sur GitHub suffit à le faire apparaître dans le
+ * launcher, sans nouvelle version à publier.
  */
 export async function fetchTikTokVideoIds(): Promise<string[]> {
-  // Casse-cache : raw.githubusercontent.com sert des réponses avec un cache assez agressif.
-  const url = `https://raw.githubusercontent.com/${config.launcherRepo}/main/launcher-config/tiktok-videos.json?t=${Date.now()}`
-  try {
-    const res = await fetch(url)
-    if (!res.ok) return []
-    const json = (await res.json()) as TikTokVideosFile
-    if (!Array.isArray(json.videoIds)) return []
-    return json.videoIds.map(extractVideoId).filter((id): id is string => id !== undefined)
-  } catch {
-    return []
-  }
+  const json = await fetchLauncherConfigJson<TikTokVideosFile>('tiktok-videos.json')
+  if (!json || !Array.isArray(json.videoIds)) return []
+  return json.videoIds.map(extractVideoId).filter((id): id is string => id !== undefined)
 }

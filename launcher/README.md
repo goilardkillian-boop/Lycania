@@ -143,6 +143,29 @@ Le launcher lit ce fichier en direct à chaque ouverture de la fenêtre TikTok (
 `raw.githubusercontent.com`) : aucune nouvelle version du launcher à publier, aucun workflow à
 lancer. Le lien complet copié depuis TikTok fonctionne tel quel, pas besoin d'en extraire l'ID.
 
+## Mettre à jour les notes de version (patch notes)
+
+Édite `launcher-config/changelog.json` sur `main`, comme pour les vidéos TikTok. La plus récente
+entrée en premier :
+
+```json
+[
+  {
+    "version": "Modpack",
+    "date": "29 juillet 2026",
+    "changes": ["Nouveau mod machin.", "Retiré : truc."]
+  }
+]
+```
+
+Le champ `version` n'est pas forcément un numéro de version du launcher : utilise `"Modpack"` (ou
+toute autre étiquette) pour documenter un changement qui ne touche que le pack (nouveaux mods,
+mods retirés...), sans lien avec une version compilée du launcher. Là aussi, aucune nouvelle
+version du launcher à publier : lu en direct à chaque ouverture de l'accueil.
+
+**Penser à mettre à jour ce fichier à chaque changement notable**, que ce soit une nouvelle
+version du launcher ou juste un changement de modpack.
+
 ## Limites connues de cet environnement de développement
 
 Ce launcher a été écrit et compilé (typecheck + build electron-vite) dans un environnement sandbox

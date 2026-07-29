@@ -107,6 +107,12 @@ export interface AppSystemInfo {
   totalMemoryMb: number
 }
 
+export interface ChangelogEntry {
+  version: string
+  date: string
+  changes: string[]
+}
+
 export const IPC = {
   authGetState: 'auth:get-state',
   authSignIn: 'auth:sign-in',
@@ -137,5 +143,7 @@ export const IPC = {
   appGetSystemInfo: 'app:get-system-info',
   appOpenExternal: 'app:open-external',
 
-  tiktokGetVideos: 'tiktok:get-videos'
+  tiktokGetVideos: 'tiktok:get-videos',
+
+  changelogGet: 'changelog:get'
 } as const
