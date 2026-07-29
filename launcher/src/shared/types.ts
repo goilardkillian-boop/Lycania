@@ -131,6 +131,7 @@ export const IPC = {
   updateOnProgress: 'update:on-progress',
   updateOnDownloaded: 'update:on-downloaded',
   updateInstallNow: 'update:install-now',
+  updateCheckBeforePlay: 'update:check-before-play',
 
   appGetVersionInfo: 'app:get-version-info',
   appGetSystemInfo: 'app:get-system-info',

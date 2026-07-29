@@ -16,6 +16,8 @@ export default function App(): JSX.Element {
   const [settings, setSettings] = useState<LauncherSettings>()
   const [screen, setScreen] = useState<Screen>('home')
   const [updateReady, setUpdateReady] = useState<string>()
+  const [updateGate, setUpdateGate] = useState<'idle' | 'checking' | 'installing'>('idle')
+  const [updatePercent, setUpdatePercent] = useState(0)
 
   useEffect(() => {
     window.lycania.auth.getState().then(setAuth)
@@ -27,6 +29,7 @@ export default function App(): JSX.Element {
     const offLaunchState = window.lycania.launch.onState(setLaunchState)
     const offLaunchLog = window.lycania.launch.onLog((line) => setLogLines((prev) => [...prev.slice(-500), line]))
     const offUpdateDownloaded = window.lycania.update.onDownloaded(setUpdateReady)
+    const offUpdateProgress = window.lycania.update.onProgress(setUpdatePercent)
 
     return () => {
       offAuthState()
@@ -35,6 +38,7 @@ export default function App(): JSX.Element {
       offLaunchState()
       offLaunchLog()
       offUpdateDownloaded()
+      offUpdateProgress()
     }
   }, [])
 
@@ -72,8 +76,19 @@ export default function App(): JSX.Element {
     // installations/lancements en parallèle. Ce verrou local coupe court dès le premier clic.
     if (starting) return
     setStarting(true)
-    setLogLines([])
     try {
+      // Mise à jour obligatoire avant de pouvoir jouer : impossible de continuer sur une
+      // version obsolète du launcher. Si une mise à jour est trouvée, l'app redémarre d'elle
+      // même pour l'installer, donc cette fonction ne va simplement jamais plus loin dans ce cas.
+      setUpdateGate('checking')
+      const updateResult = await window.lycania.update.checkBeforePlay().catch(() => 'up-to-date' as const)
+      if (updateResult === 'installing') {
+        setUpdateGate('installing')
+        return
+      }
+      setUpdateGate('idle')
+
+      setLogLines([])
       await window.lycania.install.start()
       await window.lycania.launch.start()
     } catch {
@@ -91,6 +106,21 @@ export default function App(): JSX.Element {
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <BackgroundScene />
+
+      {updateGate !== 'idle' && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-black/90 backdrop-blur-sm">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-lycania-border border-t-lycania-blood" />
+          <p className="font-display text-lg text-lycania-bone">
+            {updateGate === 'checking' ? 'Vérification des mises à jour…' : 'Mise à jour en cours…'}
+          </p>
+          {updateGate === 'installing' && (
+            <p className="max-w-sm text-center text-sm text-lycania-muted">
+              Une nouvelle version du launcher est nécessaire pour jouer. Elle est en cours d'installation
+              ({updatePercent.toFixed(0)}%), le launcher va redémarrer automatiquement.
+            </p>
+          )}
+        </div>
+      )}
 
       {updateReady && (
         <div className="flex items-center justify-between bg-lycania-blood px-4 py-1.5 text-xs text-white">
