@@ -47,6 +47,9 @@ declare global {
         getSystemInfo: () => Promise<AppSystemInfo>
         openExternal: (url: string) => Promise<void>
       }
+      tiktok: {
+        getVideos: () => Promise<string[]>
+      }
     }
   }
 }

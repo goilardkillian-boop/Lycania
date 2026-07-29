@@ -135,5 +135,7 @@ export const IPC = {
 
   appGetVersionInfo: 'app:get-version-info',
   appGetSystemInfo: 'app:get-system-info',
-  appOpenExternal: 'app:open-external'
+  appOpenExternal: 'app:open-external',
+
+  tiktokGetVideos: 'tiktok:get-videos'
 } as const

@@ -54,16 +54,6 @@ body {
   @apply bg-transparent;
 }
 
-@keyframes lycania-twinkle {
-  0%,
-  100% {
-    opacity: 0.15;
-  }
-  50% {
-    opacity: 0.9;
-  }
-}
-
 @keyframes lycania-drift {
   from {
     transform: translateX(-5%);
