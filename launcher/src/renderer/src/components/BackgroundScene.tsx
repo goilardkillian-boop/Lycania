@@ -15,8 +15,8 @@ export function BackgroundScene(): JSX.Element {
 
       {/* Voile sombre + teinte de la charte : garde le texte lisible et l'identité visuelle
           cohérente, que la photo soit un plein jour ensoleillé ou une nuit déjà très sombre. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-lycania-void/90 via-lycania-void/55 to-lycania-void/85" />
-      <div className="absolute inset-0 bg-lycania-blood/10 mix-blend-multiply" />
+      <div className="absolute inset-0 bg-gradient-to-b from-lycania-void/95 via-lycania-void/80 to-lycania-void/95" />
+      <div className="absolute inset-0 bg-lycania-blood/20 mix-blend-multiply" />
 
       <div className="lycania-mist lycania-mist-1" />
       <div className="lycania-mist lycania-mist-2" />
