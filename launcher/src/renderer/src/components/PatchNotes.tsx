@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { CHANGELOG } from '../changelog'
+import type { ChangelogEntry } from '@shared/types'
 
-function Entry({ version, date, changes }: (typeof CHANGELOG)[number]): JSX.Element {
+function Entry({ version, date, changes }: ChangelogEntry): JSX.Element {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
@@ -22,12 +22,22 @@ function Entry({ version, date, changes }: (typeof CHANGELOG)[number]): JSX.Elem
 
 export function PatchNotesCard(): JSX.Element {
   const [showAll, setShowAll] = useState(false)
-  const [latest, ...rest] = CHANGELOG
+  const [entries, setEntries] = useState<ChangelogEntry[]>()
+
+  useEffect(() => {
+    window.lycania.changelog.get().then(setEntries)
+  }, [])
+
+  const [latest, ...rest] = entries ?? []
 
   return (
     <div className="w-64 rounded-xl border border-lycania-border bg-lycania-panel/60 p-4">
       <p className="mb-3 text-xs uppercase tracking-widest text-lycania-wisteriaSoft">Nouveautés</p>
-      <Entry {...latest} />
+      {latest ? (
+        <Entry {...latest} />
+      ) : (
+        <p className="text-xs text-lycania-muted">{entries ? 'Rien à signaler pour le moment.' : 'Chargement…'}</p>
+      )}
       {rest.length > 0 && (
         <button
           onClick={() => setShowAll(true)}
@@ -36,12 +46,20 @@ export function PatchNotesCard(): JSX.Element {
           Voir tout l'historique
         </button>
       )}
-      <PatchNotesModal open={showAll} onClose={() => setShowAll(false)} />
+      <PatchNotesModal open={showAll} onClose={() => setShowAll(false)} entries={entries ?? []} />
     </div>
   )
 }
 
-function PatchNotesModal({ open, onClose }: { open: boolean; onClose: () => void }): JSX.Element | null {
+function PatchNotesModal({
+  open,
+  onClose,
+  entries
+}: {
+  open: boolean
+  onClose: () => void
+  entries: ChangelogEntry[]
+}): JSX.Element | null {
   useEffect(() => {
     if (!open) return
     function onKeyDown(e: KeyboardEvent): void {
@@ -74,7 +92,7 @@ function PatchNotesModal({ open, onClose }: { open: boolean; onClose: () => void
         </button>
         <h2 className="mb-5 font-display text-xl text-lycania-bone">Historique des mises à jour</h2>
         <div className="space-y-6">
-          {CHANGELOG.map((entry) => (
+          {entries.map((entry) => (
             <Entry key={entry.version} {...entry} />
           ))}
         </div>

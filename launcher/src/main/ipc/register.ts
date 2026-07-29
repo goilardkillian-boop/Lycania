@@ -10,6 +10,7 @@ import { loadSettings, saveSettings } from '../settings/store'
 import { config } from '../config'
 import { installUpdateNow, checkForUpdateBeforePlay } from '../update/autoUpdate'
 import { fetchTikTokVideoIds } from '../tiktok/tiktok'
+import { fetchChangelog } from '../changelog/changelog'
 import { resolveJava } from '@xmcl/installer'
 
 function broadcast(channel: string, ...args: unknown[]): void {
@@ -114,6 +115,7 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.appGetSystemInfo, () => ({ totalMemoryMb: Math.floor(totalmem() / (1024 * 1024)) }))
   ipcMain.handle(IPC.appOpenExternal, (_e, url: string) => shell.openExternal(url))
   ipcMain.handle(IPC.tiktokGetVideos, () => fetchTikTokVideoIds())
+  ipcMain.handle(IPC.changelogGet, () => fetchChangelog())
   ipcMain.handle(IPC.updateInstallNow, () => installUpdateNow())
   ipcMain.handle(IPC.updateCheckBeforePlay, () => {
     // En dev (non packagé), electron-updater n'a pas de feed valide : on ne bloque pas le

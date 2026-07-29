@@ -3,6 +3,7 @@
 import type {
   AppSystemInfo,
   AuthState,
+  ChangelogEntry,
   InstallProgress,
   LauncherSettings,
   LaunchState,
@@ -49,6 +50,9 @@ declare global {
       }
       tiktok: {
         getVideos: () => Promise<string[]>
+      }
+      changelog: {
+        get: () => Promise<ChangelogEntry[]>
       }
     }
   }
