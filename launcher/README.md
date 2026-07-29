@@ -125,6 +125,24 @@ fichier de config, ou un shaderpack qui n'est pas sur CurseForge : dépose-le da
 `modpack/custom-files/shaderpacks/MonShader.zip`, `modpack/custom-files/config/monshader.txt`).
 Chaque fichier est repris tel quel, au même chemin, dans le pack.
 
+## Ajouter une vidéo TikTok dans le launcher
+
+Édite `launcher-config/tiktok-videos.json` sur `main` (directement sur GitHub, "Edit this file"
+suffit) et ajoute le lien de la vidéo dans le tableau `videoIds` :
+
+```json
+{
+  "videoIds": [
+    "https://www.tiktok.com/@lycania.semirp/video/7667816908153949473",
+    "https://www.tiktok.com/@lycania.semirp/video/1234567890123456789"
+  ]
+}
+```
+
+Le launcher lit ce fichier en direct à chaque ouverture de la fenêtre TikTok (via
+`raw.githubusercontent.com`) : aucune nouvelle version du launcher à publier, aucun workflow à
+lancer. Le lien complet copié depuis TikTok fonctionne tel quel, pas besoin d'en extraire l'ID.
+
 ## Limites connues de cet environnement de développement
 
 Ce launcher a été écrit et compilé (typecheck + build electron-vite) dans un environnement sandbox

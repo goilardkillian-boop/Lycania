@@ -50,6 +50,9 @@ const api = {
     getVersionInfo: (): Promise<{ launcherVersion: string }> => ipcRenderer.invoke(IPC.appGetVersionInfo),
     getSystemInfo: (): Promise<AppSystemInfo> => ipcRenderer.invoke(IPC.appGetSystemInfo),
     openExternal: (url: string): Promise<void> => ipcRenderer.invoke(IPC.appOpenExternal, url)
+  },
+  tiktok: {
+    getVideos: (): Promise<string[]> => ipcRenderer.invoke(IPC.tiktokGetVideos)
   }
 }
 
