@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import type { GameProfile, InstallProgress, LaunchState } from '@shared/types'
 import { ProgressBar } from '../components/ProgressBar'
 import { TrailerModal } from '../components/TrailerModal'
+import { PatchNotesCard } from '../components/PatchNotes'
+import { TikTokCard } from '../components/TikTokCard'
 import { SITE_URL } from '../constants'
 import logo from '../assets/logo.jpg'
 
@@ -91,8 +93,8 @@ export function Home({
         </div>
       </header>
 
-      <main className="flex flex-1 items-center justify-center gap-14 px-10">
-        <aside className="flex flex-col items-center gap-3">
+      <main className="flex flex-1 items-center justify-center gap-8 overflow-x-auto px-6">
+        <aside className="flex flex-shrink-0 flex-col items-center gap-3">
           <div className="relative flex h-56 w-40 items-end justify-center overflow-hidden rounded-xl border border-lycania-border bg-lycania-panel/60">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-lycania-blood/10 to-transparent" />
             {skinSourceIndex < skinSources.length ? (
@@ -113,8 +115,8 @@ export function Home({
           <span className="font-display text-sm tracking-wide text-lycania-bone">{profile.minecraftUsername}</span>
         </aside>
 
-        <div className="flex flex-col items-center gap-6 text-center">
-          <blockquote className="max-w-lg font-serif text-lg italic leading-relaxed text-lycania-muted">
+        <div className="flex flex-shrink-0 flex-col items-center gap-6 text-center">
+          <blockquote className="max-w-md font-serif text-lg italic leading-relaxed text-lycania-muted">
             « La lune deviendra rouge pour la première fois depuis des siècles, et le monde que tu
             connais basculera. »
           </blockquote>
@@ -145,6 +147,11 @@ export function Home({
           <button onClick={() => setShowConsole((v) => !v)} className="text-xs text-lycania-muted underline">
             {showConsole ? 'Masquer' : 'Afficher'} la console
           </button>
+        </div>
+
+        <div className="flex flex-shrink-0 flex-col gap-4">
+          <PatchNotesCard />
+          <TikTokCard />
         </div>
       </main>
 
