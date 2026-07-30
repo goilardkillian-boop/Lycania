@@ -1,5 +1,12 @@
 [
   {
+    "version": "0.1.15",
+    "date": "30 juillet 2026",
+    "changes": [
+      "Corrigé : le téléchargement de Minecraft pouvait rester bloqué indéfiniment sans message d'erreur en cas de coupure réseau."
+    ]
+  },
+  {
     "version": "Modpack",
     "date": "30 juillet 2026",
     "changes": [
