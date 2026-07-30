@@ -1,5 +1,12 @@
 [
   {
+    "version": "0.1.16",
+    "date": "30 juillet 2026",
+    "changes": [
+      "Corrigé : le launcher pouvait planter au démarrage juste après la mise à jour précédente (0.1.15), avec une erreur \"node:sqlite\"."
+    ]
+  },
+  {
     "version": "0.1.15",
     "date": "30 juillet 2026",
     "changes": [

@@ -1,4 +1,10 @@
-import { Agent } from 'undici'
+// Import direct depuis le sous-module, PAS depuis le point d'entrée `undici` : celui-ci exige
+// aussi son magasin de cache SQLite (lib/cache/sqlite-cache-store.js), qui référence le module
+// natif expérimental `node:sqlite`. Une fois empaqueté par electron-vite/Rollup, ce require se
+// retrouve exécuté au chargement du process principal (et pas seulement si le cache SQLite est
+// réellement utilisé, ce qui n'est jamais le cas ici), et plante au démarrage sur les versions
+// d'Electron dont le Node embarqué ne fournit pas encore `node:sqlite`.
+import Agent from 'undici/lib/dispatcher/agent'
 
 /**
  * Les téléchargements de Minecraft/NeoForge/Java n'ont par défaut aucun timeout : si une
