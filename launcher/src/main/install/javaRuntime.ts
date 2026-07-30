@@ -4,25 +4,10 @@ import { readdir } from 'node:fs/promises'
 import { fetchJavaRuntimeManifest, installJavaRuntimeTask, type JavaRuntimeManifest } from '@xmcl/installer'
 import { resolveJava } from '@xmcl/installer'
 import type { TaskContext } from '@xmcl/task'
+import { installDispatcher } from './httpDispatcher'
+import { withTimeout } from './withTimeout'
 
 const JAVA_EXECUTABLE_NAME = osPlatform() === 'win32' ? 'javaw.exe' : 'java'
-
-/**
- * Le manifeste des runtimes Java est censé répondre quasi instantanément (petit JSON) : s'il
- * n'a pas répondu après ce délai, c'est un problème réseau (pare-feu, DNS, proxy) et il vaut
- * mieux échouer avec un message clair que de rester bloqué indéfiniment sans retour visuel.
- */
-async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout>
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(message)), ms)
-  })
-  try {
-    return await Promise.race([promise, timeout])
-  } finally {
-    clearTimeout(timer!)
-  }
-}
 
 async function findJavaExecutable(root: string): Promise<string | undefined> {
   let entries
@@ -78,7 +63,7 @@ export async function ensureJavaRuntime(
 
   onProgress?.({ progress: undefined, detail: `Installation de Java (${component})…` })
 
-  const task = installJavaRuntimeTask({ destination, manifest })
+  const task = installJavaRuntimeTask({ destination, manifest, dispatcher: installDispatcher })
   const context: TaskContext = {
     onUpdate: (t) => {
       // t.total vaut -1 tant que la taille totale n'est pas encore connue (et peut rester négatif

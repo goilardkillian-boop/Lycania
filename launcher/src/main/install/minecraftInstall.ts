@@ -3,6 +3,8 @@ import { Version, type ResolvedVersion } from '@xmcl/core'
 import type { TaskContext } from '@xmcl/task'
 import type { InstallProgress } from '@shared/types'
 import { ensureJavaRuntime } from './javaRuntime'
+import { installDispatcher } from './httpDispatcher'
+import { withTimeout } from './withTimeout'
 
 export interface InstallTarget {
   minecraftVersion: string
@@ -48,13 +50,17 @@ export async function ensureMinecraftInstalled(
   }
 
   onProgress?.({ phase: 'minecraft', progress: 0, detail: `Téléchargement de Minecraft ${minecraftVersion}…` })
-  const versionList = await getVersionList()
+  const versionList = await withTimeout(
+    getVersionList(),
+    20000,
+    'Impossible de contacter les serveurs de Mojang pour récupérer la liste des versions. Vérifie ta connexion internet ou réessaie plus tard.'
+  )
   const versionMeta = versionList.versions.find((v) => v.id === minecraftVersion)
   if (!versionMeta) {
     throw new Error(`Version de Minecraft introuvable dans le manifeste Mojang: ${minecraftVersion}`)
   }
 
-  const vanilla = await installTask(versionMeta, gameDirectory).startAndWait(
+  const vanilla = await installTask(versionMeta, gameDirectory, { dispatcher: installDispatcher }).startAndWait(
     progressContext(onProgress, 'minecraft', `Téléchargement de Minecraft ${minecraftVersion}…`)
   )
 
@@ -64,7 +70,8 @@ export async function ensureMinecraftInstalled(
 
   onProgress?.({ phase: 'neoforge', progress: 0, detail: `Installation de NeoForge ${neoforgeVersion}…` })
   const installedVersionId = await installNeoForgedTask('neoforge', neoforgeVersion, gameDirectory, {
-    java: javaPath
+    java: javaPath,
+    dispatcher: installDispatcher
   }).startAndWait(progressContext(onProgress, 'neoforge', `Installation de NeoForge ${neoforgeVersion}…`))
 
   const resolved = await Version.parse(gameDirectory, installedVersionId)
