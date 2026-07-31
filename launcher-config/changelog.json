@@ -5,7 +5,8 @@
     "changes": [
       "Nouveau mod : Axiom (outil de construction avancé), avec Connector et Forgified Fabric API pour le faire fonctionner.",
       "Nouveau mod : Flashback (enregistrement et relecture de sessions de jeu).",
-      "Retiré : ReForgedPlay Mod (Replay Mod)."
+      "Retiré : ReForgedPlay Mod (Replay Mod).",
+      "Corrigé : le jeu pouvait planter au chargement d'un monde à cause d'un conflit entre Flashback et ModernFix."
     ]
   },
   {
