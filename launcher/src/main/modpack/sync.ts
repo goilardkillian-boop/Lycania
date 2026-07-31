@@ -45,20 +45,29 @@ async function downloadFile(url: string, destination: string): Promise<void> {
   await pipeline(res.body as unknown as NodeJS.ReadableStream, nodeStream)
 }
 
-async function readInstalledVersion(gameDirectory: string): Promise<string | undefined> {
+interface InstalledMarker {
+  packVersion: string
+  publishedAt: string
+  /** Chemins installés par le pack lors du dernier sync réussi (absent sur les anciens marqueurs). */
+  files?: string[]
+}
+
+async function readInstalledMarker(gameDirectory: string): Promise<InstalledMarker | undefined> {
   try {
     const raw = await readFile(join(gameDirectory, MARKER_FILE), 'utf8')
-    return (JSON.parse(raw) as { packVersion: string }).packVersion
+    return JSON.parse(raw) as InstalledMarker
   } catch {
     return undefined
   }
 }
 
 async function writeInstalledVersion(gameDirectory: string, manifest: PackManifest): Promise<void> {
-  await writeFile(
-    join(gameDirectory, MARKER_FILE),
-    JSON.stringify({ packVersion: manifest.packVersion, publishedAt: manifest.publishedAt }, null, 2)
-  )
+  const marker: InstalledMarker = {
+    packVersion: manifest.packVersion,
+    publishedAt: manifest.publishedAt,
+    files: manifest.files.map((f) => f.path)
+  }
+  await writeFile(join(gameDirectory, MARKER_FILE), JSON.stringify(marker, null, 2))
 }
 
 export interface SyncResult {
@@ -79,8 +88,8 @@ export async function syncModpack(
   onProgress?.({ phase: 'modpack-manifest', detail: 'Vérification de la dernière version du modpack…' })
   const manifest = await fetchLatestReleaseManifest(repo)
 
-  const installedVersion = await readInstalledVersion(gameDirectory)
-  if (installedVersion === manifest.packVersion) {
+  const previousMarker = await readInstalledMarker(gameDirectory)
+  if (previousMarker?.packVersion === manifest.packVersion) {
     onProgress?.({ phase: 'ready', progress: 1, detail: 'Modpack déjà à jour.' })
     return { manifest, updated: false }
   }
@@ -106,7 +115,17 @@ export async function syncModpack(
     done += 1
   }
 
-  for (const removedPath of manifest.removedPaths ?? []) {
+  // `manifest.removedPaths` ne couvre que le diff avec la release immédiatement précédente : un
+  // launcher qui saute plusieurs releases d'un coup (cas normal, il ne récupère jamais que la
+  // dernière) raterait un retrait signalé uniquement dans une release intermédiaire. On
+  // reconstitue donc aussi le diff nous-mêmes à partir de ce qu'on avait réellement installé la
+  // dernière fois (marqueur local), ce qui reste correct quel que soit le nombre de releases
+  // sautées. Union des deux pour rester robuste si le marqueur local est absent/ancien format.
+  const currentPaths = new Set(manifest.files.map((f) => f.path))
+  const staleFromMarker = (previousMarker?.files ?? []).filter((p) => !currentPaths.has(p))
+  const pathsToRemove = new Set([...(manifest.removedPaths ?? []), ...staleFromMarker])
+
+  for (const removedPath of pathsToRemove) {
     const target = join(gameDirectory, removedPath)
     const info = await stat(target).catch(() => undefined)
     if (info) await rm(target, { force: true })
