@@ -34,6 +34,7 @@ const manifestPath = join(repoRoot, 'modpack', 'manifest.json')
 const overridesModsDir = join(repoRoot, 'modpack', 'overrides', 'mods')
 const customModsDir = join(repoRoot, 'modpack', 'custom-mods')
 const customFilesDir = join(repoRoot, 'modpack', 'custom-files')
+const externalModsPath = join(repoRoot, 'modpack', 'external-mods.json')
 const outDir = join(repoRoot, 'dist', 'release')
 
 async function sha1Of(path) {
@@ -105,6 +106,32 @@ async function addCustomMods(files) {
     await copyFile(src, dest)
     files.push({ path: `mods/${fileName}`, sha1: await sha1Of(dest), size: statSync(dest).size })
     console.log(`[custom] ${fileName}`)
+  }
+}
+
+/**
+ * Mods absents de CurseForge (ex: exclusivité Modrinth) mais téléchargeables directement, sans
+ * clé d'API ni restriction: modpack/external-mods.json liste {fileName, url, sha1, size, folder}.
+ * Téléchargés à chaque sync, jamais commités ici (certains dépassent largement la limite de 100 Mo
+ * par fichier de GitHub). Le `sha1` attendu est optionnel mais recommandé: s'il est fourni et ne
+ * correspond pas au fichier téléchargé, la sync échoue plutôt que de publier un fichier corrompu
+ * ou une version différente de celle voulue.
+ */
+async function addExternalMods(files) {
+  if (!existsSync(externalModsPath)) return
+  const entries = JSON.parse(await readFile(externalModsPath, 'utf8'))
+  for (const entry of entries) {
+    const { fileName, url, sha1: expectedSha1, folder = 'mods' } = entry
+    const dest = join(outDir, folder, fileName)
+    await downloadTo(url, dest)
+    const sha1 = await sha1Of(dest)
+    if (expectedSha1 && sha1 !== expectedSha1.toLowerCase()) {
+      throw new Error(
+        `[external] ${fileName}: sha1 attendu ${expectedSha1}, obtenu ${sha1}. Le fichier a peut-être changé sur ${url}.`
+      )
+    }
+    files.push({ path: `${folder}/${fileName}`, sha1, size: statSync(dest).size })
+    console.log(`[external] ${fileName}`)
   }
 }
 
@@ -188,6 +215,7 @@ async function main() {
   }
 
   await addCustomMods(files)
+  await addExternalMods(files)
   await addCustomFiles(files)
 
   const previousPaths = await fetchPreviousFilePaths()

@@ -1,5 +1,14 @@
 [
   {
+    "version": "Modpack",
+    "date": "31 juillet 2026",
+    "changes": [
+      "Nouveau mod : Axiom (outil de construction avancé), avec Connector et Forgified Fabric API pour le faire fonctionner.",
+      "Nouveau mod : Flashback (enregistrement et relecture de sessions de jeu).",
+      "Retiré : ReForgedPlay Mod (Replay Mod)."
+    ]
+  },
+  {
     "version": "0.1.16",
     "date": "30 juillet 2026",
     "changes": [
