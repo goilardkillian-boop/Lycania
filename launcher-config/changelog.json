@@ -4,6 +4,8 @@
     "date": "31 juillet 2026",
     "changes": [
       "Nouveau mod : Axiom (outil de construction avancé), avec Connector et Forgified Fabric API pour le faire fonctionner.",
+      "Nouveau mod : Lootr (butin unique par joueur dans les coffres de loot).",
+      "Nouveau mod : Mouse Tweaks (raccourcis souris pour gérer l'inventaire plus vite).",
       "Retiré : ReForgedPlay Mod (Replay Mod)."
     ]
   },
