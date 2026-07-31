@@ -1,5 +1,12 @@
 [
   {
+    "version": "0.1.17",
+    "date": "31 juillet 2026",
+    "changes": [
+      "Corrigé : un mod retiré du pack pouvait rester bloqué chez les joueurs qui n'avaient pas synchronisé pendant le retrait (ex : Flashback)."
+    ]
+  },
+  {
     "version": "Modpack",
     "date": "31 juillet 2026",
     "changes": [

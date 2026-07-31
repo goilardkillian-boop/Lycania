@@ -32,3 +32,13 @@ Trois façons d'ajouter un mod, selon sa provenance :
   entrée dans `modpack/external-mods.json` (`fileName`, `url`, `sha1`, `size`, `folder` optionnel).
   Téléchargé à chaque sync depuis l'URL donnée, jamais commité ici — c'est la seule option pour un
   fichier qui dépasse la limite de 100 Mo de GitHub par fichier commité.
+
+## Retirer un mod : et si un joueur a raté la release qui le retire ?
+
+`pack-manifest.json` liste un `removedPaths` calculé par diff avec la release *immédiatement
+précédente*. Un joueur dont le launcher saute plusieurs releases d'un coup (cas normal, il ne
+récupère toujours que la dernière) peut rater un retrait signalé uniquement dans une release
+intermédiaire, et se retrouver avec un mod orphelin que plus aucune release ne redemande de
+supprimer. Si ça arrive : ajouter le chemin (ex: `mods/MonMod-1.0.jar`) dans
+`modpack/force-remove.json`, toujours inclus dans `removedPaths` à chaque sync tant qu'il y est.
+À retirer de ce fichier une fois que le mod ne traîne plus chez personne.

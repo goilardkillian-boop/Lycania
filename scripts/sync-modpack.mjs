@@ -35,6 +35,7 @@ const overridesModsDir = join(repoRoot, 'modpack', 'overrides', 'mods')
 const customModsDir = join(repoRoot, 'modpack', 'custom-mods')
 const customFilesDir = join(repoRoot, 'modpack', 'custom-files')
 const externalModsPath = join(repoRoot, 'modpack', 'external-mods.json')
+const forceRemovePath = join(repoRoot, 'modpack', 'force-remove.json')
 const outDir = join(repoRoot, 'dist', 'release')
 
 async function sha1Of(path) {
@@ -91,6 +92,19 @@ async function fetchPreviousFilePaths() {
   if (!manifestRes.ok) return []
   const previous = await manifestRes.json()
   return (previous.files ?? []).map((f) => f.path)
+}
+
+/**
+ * `removedPaths` ne couvre normalement que le diff avec la release immédiatement précédente : un
+ * joueur qui saute plusieurs releases d'un coup (cas courant, le launcher ne récupère toujours que
+ * la dernière) peut rater un retrait signalé uniquement dans une release intermédiaire, et se
+ * retrouver avec un fichier orphelin qui ne sera plus jamais listé en suppression. modpack/force-
+ * remove.json liste des chemins à toujours inclure dans removedPaths, pour republier une
+ * suppression déjà "passée" et débloquer ces installations sans devoir republier le launcher.
+ */
+async function loadForceRemovePaths() {
+  if (!existsSync(forceRemovePath)) return []
+  return JSON.parse(await readFile(forceRemovePath, 'utf8'))
 }
 
 /**
@@ -220,7 +234,9 @@ async function main() {
 
   const previousPaths = await fetchPreviousFilePaths()
   const currentPaths = new Set(files.map((f) => f.path))
-  const removedPaths = previousPaths.filter((p) => !currentPaths.has(p))
+  const diffRemoved = previousPaths.filter((p) => !currentPaths.has(p))
+  const forceRemoved = (await loadForceRemovePaths()).filter((p) => !currentPaths.has(p))
+  const removedPaths = Array.from(new Set([...diffRemoved, ...forceRemoved]))
 
   const packManifest = {
     packVersion: RELEASE_TAG,
