@@ -1,0 +1,26 @@
+diff --git a/node_modules/@xmcl/file-transfer/dist/index.js b/node_modules/@xmcl/file-transfer/dist/index.js
+index d31725a..45beeb0 100644
+--- a/node_modules/@xmcl/file-transfer/dist/index.js
++++ b/node_modules/@xmcl/file-transfer/dist/index.js
+@@ -298,7 +298,7 @@ async function getWithRange(url, fd, headers, range, dispatcher, onHeaderMetadat
+       if (range.start && (rangeHeader == null ? void 0 : rangeHeader.start) && range.start !== rangeHeader.start) {
+         throw new RangeError(`Range mismatch. ${range.start} !== ${rangeHeader.start}`);
+       }
+-      const redirectedUrl = "history" in context && context.history instanceof Array ? context.history[context.history.length - 1] : void 0;
++      const redirectedUrl = context && "history" in context && context.history instanceof Array ? context.history[context.history.length - 1] : void 0;
+       const acceptRange = headers2["accept-ranges"] === "bytes";
+       if (acceptRange) {
+         noRetry.value = false;
+diff --git a/node_modules/@xmcl/file-transfer/dist/index.mjs b/node_modules/@xmcl/file-transfer/dist/index.mjs
+index f8fdfaf..84f8764 100644
+--- a/node_modules/@xmcl/file-transfer/dist/index.mjs
++++ b/node_modules/@xmcl/file-transfer/dist/index.mjs
+@@ -254,7 +254,7 @@ async function getWithRange(url, fd, headers, range, dispatcher, onHeaderMetadat
+       if (range.start && (rangeHeader == null ? void 0 : rangeHeader.start) && range.start !== rangeHeader.start) {
+         throw new RangeError(`Range mismatch. ${range.start} !== ${rangeHeader.start}`);
+       }
+-      const redirectedUrl = "history" in context && context.history instanceof Array ? context.history[context.history.length - 1] : void 0;
++      const redirectedUrl = context && "history" in context && context.history instanceof Array ? context.history[context.history.length - 1] : void 0;
+       const acceptRange = headers2["accept-ranges"] === "bytes";
+       if (acceptRange) {
+         noRetry.value = false;
