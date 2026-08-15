@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.18",
+    "date": "1 août 2026",
+    "changes": [
+      "Corrigé : l'installation pouvait échouer ou rester bloquée à \"Téléchargement de Minecraft\" pour une première installation, notamment sur les box/routeurs grand public.",
+      "Corrigé : un échec d'installation pouvait remettre le bouton Jouer sans afficher aucun message d'erreur."
+    ]
+  },
+  {
     "version": "Modpack",
     "date": "1 août 2026",
     "changes": [
