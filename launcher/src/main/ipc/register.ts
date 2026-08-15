@@ -11,6 +11,7 @@ import { config } from '../config'
 import { installUpdateNow, checkForUpdateBeforePlay } from '../update/autoUpdate'
 import { fetchTikTokVideoIds } from '../tiktok/tiktok'
 import { fetchChangelog } from '../changelog/changelog'
+import { errorMessageOf } from '../install/errorMessage'
 import { resolveJava } from '@xmcl/installer'
 
 function broadcast(channel: string, ...args: unknown[]): void {
@@ -48,8 +49,11 @@ export function registerIpcHandlers(): void {
 
       return { manifest: syncResult.manifest }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      broadcast(IPC.installOnProgress, { phase: 'error', detail: "Erreur pendant l'installation.", error: message })
+      broadcast(IPC.installOnProgress, {
+        phase: 'error',
+        detail: "Erreur pendant l'installation.",
+        error: errorMessageOf(err)
+      })
       throw err
     }
   })

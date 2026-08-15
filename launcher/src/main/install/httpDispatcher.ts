@@ -13,9 +13,20 @@ import Agent from 'undici/lib/dispatcher/agent'
  * progression figée et sans jamais afficher d'erreur. headersTimeout/bodyTimeout sont réarmés à
  * chaque octet reçu : ils n'interrompent donc pas les téléchargements lents mais actifs, seulement
  * ceux qui se sont réellement arrêtés.
+ *
+ * `connections` plafonne le nombre de connexions simultanées par origine. @xmcl/installer télécharge
+ * les assets (des milliers de petits fichiers pour une premi​ère installation) via un
+ * Promise.allSettled sans aucune limite de parallélisme : sans ce plafond, le launcher ouvre
+ * potentiellement des milliers de connexions HTTPS d'un coup vers resources.download.minecraft.net.
+ * Sans incidence sur une bonne connexion/un bon PC (d'où le fait que ça marche "très bien" en test),
+ * mais ça sature la table NAT de routeurs grand public ou se fait bloquer par un antivirus chez de
+ * nombreux joueurs qui installent pour la première fois — d'où les échecs rapides ou les blocages
+ * silencieux constatés. undici met ces requêtes en file d'attente au lieu de les envoyer toutes
+ * en même temps, sans changer le code appelant.
  */
 export const installDispatcher = new Agent({
   connectTimeout: 15_000,
   headersTimeout: 30_000,
-  bodyTimeout: 30_000
+  bodyTimeout: 30_000,
+  connections: 24
 })
