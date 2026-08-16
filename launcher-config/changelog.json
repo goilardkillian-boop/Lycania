@@ -1,5 +1,15 @@
 [
   {
+    "version": "Modpack",
+    "date": "15 août 2026",
+    "changes": [
+      "Nouveau mod : Better Combat (système de combat au corps-à-corps façon Minecraft Dungeons).",
+      "Nouveau mod : Runes (munitions à base de runes pour les sorts).",
+      "Nouveau mod : AzureLib Armor (animations d'armures).",
+      "Nouveaux mods techniques : BundleAPI, Structure Pool API."
+    ]
+  },
+  {
     "version": "0.1.19",
     "date": "15 août 2026",
     "changes": [
