@@ -4,12 +4,12 @@
     "date": "15 août 2026",
     "changes": [
       "Nouveau mod : Better Combat (système de combat au corps-à-corps façon Minecraft Dungeons).",
-      "Nouveau mod : Runes (munitions à base de runes pour les sorts).",
-      "Nouveau mod : AzureLib Armor (animations d'armures).",
-      "Nouveau mod : Wizards (sorts d'Arcane, de Feu et de Givre).",
-      "Nouveau mod : Spell Engine et Spell Power (moteur de magie).",
       "Nouveau mod : YDM's Weapon Master (affiche les objets de la barre d'accès rapide sur le personnage).",
-      "Nouveaux mods techniques : BundleAPI, Structure Pool API."
+      "Nouveau mod : Clumps (regroupe les orbes d'expérience).",
+      "Nouveau mod : Carry On (transporter blocs et mobs).",
+      "Nouveau mod : PlayerRevive (réanimation entre joueurs).",
+      "Nouveau mod : DuMmmMmmy (mannequins décoratifs).",
+      "Retiré : le système de magie (Wizards, Spell Engine, Spell Power, Runes, Iron's Spells 'n Spellbooks, All the Wizard Gear)."
     ]
   },
   {
