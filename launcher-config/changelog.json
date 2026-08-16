@@ -4,7 +4,10 @@
     "date": "16 août 2026",
     "changes": [
       "Corrigé : le jeu pouvait planter au chargement avec l'erreur \"Sodium mod config not found\" (bug connu de Sodium sur NeoForge) — mise à jour de Sodium vers 0.8.13-beta.2.",
-      "Corrigé : le jeu pouvait planter au chargement à cause d'une incompatibilité entre DuMmmMmmy et Moonlight Lib — mise à jour de Moonlight Lib vers 3.3.4."
+      "Corrigé : le jeu pouvait planter au chargement à cause d'une incompatibilité entre DuMmmMmmy et Moonlight Lib — mise à jour de Moonlight Lib vers 3.3.4.",
+      "Nouveau mod : PV Addon Spectator (mode spectateur pour Plasmo Voice).",
+      "Nouveau mod : DarkTimer (nettoyage automatique des objets au sol pour réduire le lag).",
+      "Nouveau mod : Spice of Life: Carrot Edition (variété alimentaire récompensée)."
     ]
   },
   {
