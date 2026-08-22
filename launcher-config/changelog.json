@@ -1,5 +1,12 @@
 [
   {
+    "version": "0.1.20",
+    "date": "19 août 2026",
+    "changes": [
+      "Corrigé : l'aperçu du skin pouvait afficher le skin par défaut (Steve/Alex) au premier lancement au lieu du vrai skin, le temps que les services de rendu externes le récupèrent — le launcher redemande maintenant automatiquement après quelques secondes."
+    ]
+  },
+  {
     "version": "Modpack",
     "date": "19 août 2026",
     "changes": [
