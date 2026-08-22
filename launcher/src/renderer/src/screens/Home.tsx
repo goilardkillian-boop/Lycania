@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { GameProfile, InstallProgress, LaunchState } from '@shared/types'
 import { ProgressBar } from '../components/ProgressBar'
 import { TrailerModal } from '../components/TrailerModal'
@@ -58,14 +58,24 @@ export function Home({
     return 'Jouer'
   }, [installProgress, launchState.phase, busy])
 
+  const [skinSourceIndex, setSkinSourceIndex] = useState(0)
+  // Sur un cache froid, ces services répondent parfois par un skin par défaut (Steve/Alex)
+  // le temps de récupérer le vrai skin depuis Mojang en arrière-plan (comportement documenté
+  // de crafatar) : on redemande une fois après quelques secondes pour rattraper ce cas, avec
+  // un paramètre changeant pour éviter que le cache local ne renvoie la même image par défaut.
+  const [skinRetryToken, setSkinRetryToken] = useState(0)
+  useEffect(() => {
+    const timer = setTimeout(() => setSkinRetryToken((t) => t + 1), 4000)
+    return () => clearTimeout(timer)
+  }, [profile.minecraftUuid])
+
   // Plusieurs services de rendu de skin, essayés dans l'ordre : si l'un est indisponible
   // (crafatar a déjà eu des pannes), on bascule sur le suivant plutôt que de laisser un vide.
   const skinSources = [
-    `https://crafatar.com/renders/body/${profile.minecraftUuid}?overlay&scale=8`,
-    `https://mc-heads.net/body/${profile.minecraftUuid}/300`,
-    `https://minotar.net/body/${profile.minecraftUuid}/300.png`
+    `https://crafatar.com/renders/body/${profile.minecraftUuid}?overlay&scale=8&_retry=${skinRetryToken}`,
+    `https://mc-heads.net/body/${profile.minecraftUuid}/300?_retry=${skinRetryToken}`,
+    `https://minotar.net/body/${profile.minecraftUuid}/300.png?_retry=${skinRetryToken}`
   ]
-  const [skinSourceIndex, setSkinSourceIndex] = useState(0)
 
   return (
     <div className="flex h-full flex-col">
