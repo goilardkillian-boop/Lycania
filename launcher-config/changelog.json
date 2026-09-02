@@ -1,6 +1,14 @@
 [
   {
     "version": "Modpack",
+    "date": "2 septembre 2026",
+    "changes": [
+      "Nouveau mod : Quark (avec Zeta et Biolith), Cluttered.",
+      "Mise à jour de 35 mods vers leur dernière version compatible (dont Sodium, qui passe de la bêta 0.8.13-beta.2 à la version stable 0.8.13, Jade/JadeAddons, FTB Library/Quests/Teams, Easy NPC/Easy NPC Config UI, Sophisticated Backpacks/Core, Moonlight Lib, JEI, et d'autres)."
+    ]
+  },
+  {
+    "version": "Modpack",
     "date": "22 août 2026",
     "changes": [
       "Nouveau mod : Immersive Paintings (tableaux personnalisables).",
